@@ -7,3 +7,6 @@ Este es el monorepo usado para el código del proyecto semestral del grupo 10 en
 
 ## Dependencias
 - gurobipy
+
+## Autoformatting
+Cada tanto corremos el auto-formatter [```black```](https://github.com/psf/black).
