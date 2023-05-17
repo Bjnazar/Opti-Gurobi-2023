@@ -74,6 +74,9 @@ model.update()
 
 # ------------ Agregar restricciones ------------
 
+# Editar esta lista para correr el modelo con distintas restricciones activas
+ls_activas = [1, 2, 3, 4, 5]
+
 
 def agregar_restricciones(ls_activas):
     # R1
@@ -331,6 +334,9 @@ def agregar_restricciones(ls_activas):
     # R15
     # Las restricciones de la naturaleza de las variables las establece gurobi
     #  al crear las variables y definir sus respectivos tipos de datos
+
+
+agregar_restricciones(ls_activas)
 
 
 # ------------ Función objetivo ------------
