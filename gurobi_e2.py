@@ -67,7 +67,7 @@ Z = model.addVars(Camiones, Bloques, Dias, Pedidos, Destinos, vtype=GRB.BINARY, 
 # variables_z = []
 # for d in Destinos:
 #     z = model.addVars(
-#         Camiones, Bloques, Dias, Pedidos(d), vtype=GRB.BINARY, name=f"Z_ibtj{d}"
+#         Camiones, Bloques, Dias, Pedidos, vtype=GRB.BINARY, name=f"Z_ibtj{d}"
 #     )
 #     variables_z.append(z)
 # Z = {
@@ -76,7 +76,7 @@ Z = model.addVars(Camiones, Bloques, Dias, Pedidos, Destinos, vtype=GRB.BINARY, 
 #     for b in Bloques
 #     for t in Dias
 #     for d in Destinos
-#     for j in Pedidos(d)
+#     for j in Pedidos
 # }
 
 alpha = model.addVars(Camiones, Bloques, Dias, vtype=GRB.BINARY, name="alpha_ibt")
@@ -112,7 +112,7 @@ def agregar_restricciones(ls_activas):
                 for t in Dias
                 for b in Bloques
                 for d in Destinos
-                for j in Pedidos(d)
+                for j in Pedidos
             ),
             name="R1b",
         )
@@ -142,7 +142,7 @@ def agregar_restricciones(ls_activas):
                 for i in Camiones
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos(d)
+                for j in Pedidos
                 for b1 in Bloques[:-2]
                 for b0 in Bloques_para_b0_bd[(b1, i, d)]
             ),
@@ -170,7 +170,7 @@ def agregar_restricciones(ls_activas):
                 for d in Destinos
                 for b in Bloques
                 for t in Dias
-                for j in Pedidos(d)
+                for j in Pedidos
             ),
             name="R3a"
         )
@@ -233,7 +233,7 @@ def agregar_restricciones(ls_activas):
     # TODO: (decidir si) implementar la propuesta de cambio
     if 6 in ls_activas:
         r6_sum1 = lambda i, b, t: quicksum(
-            Z[i, b, t, j, d] for d in Destinos for j in Pedidos(d)
+            Z[i, b, t, j, d] for d in Destinos for j in Pedidos
         )
         r6_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
         model.addConstrs(
@@ -266,7 +266,7 @@ def agregar_restricciones(ls_activas):
                 for t in Dias
                 for b in Bloques
                 for d in Destinos
-                for j in Pedidos(d)
+                for j in Pedidos
             ),
             name="R6b",
         )
@@ -280,7 +280,7 @@ def agregar_restricciones(ls_activas):
                 for t in Dias
                 for b in Bloques
                 for d in Destinos
-                for j in Pedidos(d)
+                for j in Pedidos
             ),
             name="R7a",
         )
@@ -298,7 +298,7 @@ def agregar_restricciones(ls_activas):
     # R8
     if 8 in ls_activas:
         r8_sum1 = lambda i, b, t: quicksum(
-            Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos(d)
+            Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
         )
         r8_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
         r8_sum3 = lambda t, b: quicksum(
@@ -327,7 +327,7 @@ def agregar_restricciones(ls_activas):
                 )
                 >= 1
                 for d in Destinos
-                for j in Pedidos(d)
+                for j in Pedidos
             ),
             name="R10",
         )
@@ -352,7 +352,7 @@ def agregar_restricciones(ls_activas):
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos(d)
+                for j in Pedidos
             ),
             name="R11b",
         )
@@ -368,7 +368,7 @@ def agregar_restricciones(ls_activas):
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos(d)
+                for j in Pedidos
             ),
             name="R13a",
         )
@@ -440,7 +440,7 @@ probar_restricciones(1, 14)
 
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
-    Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos(d)
+    Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
 )
 fo_sum2 = lambda t, b, i: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
 objetivo = quicksum(
