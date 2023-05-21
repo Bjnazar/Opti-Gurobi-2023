@@ -35,8 +35,8 @@ Do = {o: randint(10, 100) for o in Origenes}  # Do_o
 Dd = {d: randint(10, 100) for d in Destinos}  # Dd_d
 Md = {(d, t): randint(10, 100) for d in Destinos for t in Dias}  # Md_dt
 p = {d: randint(10, 100) for d in Destinos}  # p_d
-tmaxd = randint(10, 100)
-tmaxo = randint(10, 100)
+tmaxd = randint(10, 100)   # TODO: Este no era distinto por cada destino? No sé, alguien más revise porfa. Milan.
+tmaxo = randint(10, 100)   # TODO: Este no era distinto por cada origen? No sé, alguien más revise porfa. Milan.
 Mo = {(o, t): randint(10, 100) for o in Origenes for t in Dias}  # Mo_ot
 Cq = randint(10, 100)
 Qmax = randint(10, 100)
@@ -359,7 +359,7 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
             continue
 
 
-probar_restricciones(1, 14)  # 1 y 2 ya me salieron OK
+probar_restricciones(1, 14)
 #  OK (no crashean): 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 #  NO OK (crashean): 3, 4
 
