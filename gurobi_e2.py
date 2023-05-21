@@ -275,12 +275,11 @@ def agregar_restricciones(ls_activas):
     if 7 in ls_activas:
         model.addConstrs(
             (
-                Z[i, b, t, j, d] <= Q[i]
+                X[i, b, t, d] <= Q[i]
                 for i in Camiones
                 for t in Dias
                 for b in Bloques
                 for d in Destinos
-                for j in Pedidos
             ),
             name="R7a",
         )
