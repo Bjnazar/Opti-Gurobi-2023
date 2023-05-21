@@ -13,7 +13,8 @@ num_camiones_diesel = 10
 num_destinos = 10
 num_origenes = 10
 num_dias = 10
-bigM = 10**9
+bigM = 100**9
+J = 100
 
 # Construcción de los conjuntos
 Camiones = range(1, num_camiones_diesel + num_camiones_electricos + 1)  # i in I
@@ -21,16 +22,16 @@ Destinos = range(1, num_destinos + 1)  # d in D
 Origenes = range(1, num_origenes + 1)  # o in O
 Dias = range(1, num_dias + 1)  # t in T
 Bloques = range(1, 48 + 1)  # b in {1,...,48}
-Pedidos = lambda d: range(1, p[d] + 1)  # j in {1,...,pd}, no se si este bien, solo una idea
+Pedidos = range(1, J) 
 print("Conjuntos construidos")
 
 # Utils
 ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 
 # Construcción de los parametros
-V = {i: randint(10, 100) for i in Camiones}  # V_i
-A = {i: randint(10, 100) for i in Camiones}  # A_i
-E = {i: randint(10, 100) for i in Camiones}  # E_i
+V = {i: randint(50, 90) for i in Camiones}  # V_i
+A = {i: randint(150, 643) for i in Camiones}  # A_i
+E = {i: randint(1, 2) for i in Camiones}  # E_i
 Ckm = {i: randint(10, 100) for i in Camiones}  # Ckm_i
 Cc = {i: randint(10, 100) for i in Camiones}  # Cc_i
 Q = {i: randint(10, 100) for i in Camiones}  # Q_i
@@ -60,21 +61,24 @@ X = model.addVars(Camiones, Bloques, Dias, Destinos, vtype=GRB.INTEGER, name="X_
 W = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="W_ibto")
 M = model.addVars(Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="M_bto")
 Y = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.BINARY, name="Y_ibto")
-# no se si este bien, solo una idea
-variables_z = []
-for d in Destinos:
-    z = model.addVars(
-        Camiones, Bloques, Dias, Pedidos(d), vtype=GRB.BINARY, name=f"Z_ibtj{d}"
-    )
-    variables_z.append(z)
-Z = {
-    (i, b, t, j, d): variables_z[d][i, b, t, j]
-    for i in Camiones
-    for b in Bloques
-    for t in Dias
-    for d in Destinos
-    for j in Pedidos(d)
-}
+Z = model.addVars(Camiones, Bloques, Dias, Pedidos, Destinos, vtype=GRB.BINARY, name="Z_ibtjd")
+
+# # no se si este bien, solo una idea
+# variables_z = []
+# for d in Destinos:
+#     z = model.addVars(
+#         Camiones, Bloques, Dias, Pedidos(d), vtype=GRB.BINARY, name=f"Z_ibtj{d}"
+#     )
+#     variables_z.append(z)
+# Z = {
+#     (i, b, t, j, d): variables_z[d][i, b, t, j]
+#     for i in Camiones
+#     for b in Bloques
+#     for t in Dias
+#     for d in Destinos
+#     for j in Pedidos(d)
+# }
+
 alpha = model.addVars(Camiones, Bloques, Dias, vtype=GRB.BINARY, name="alpha_ibt")
 beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
 
@@ -161,7 +165,7 @@ def agregar_restricciones(ls_activas):
     if 3 in ls_activas:
         model.addConstr(
             (
-                b + 2 * Bd[id] <= 48 + bigM * (1 - Z[i, b, t, j, d])
+                b + 2 * Bd[i,d] <= 48 + bigM * (1 - Z[i, b, t, j, d])
                 for i in Camiones
                 for d in Destinos
                 for b in Bloques
@@ -172,7 +176,7 @@ def agregar_restricciones(ls_activas):
         )
         model.addConstr(
             (
-                b + 2 * Bo[io] <= 48 + bigM * (1 - Y[i, b, t, o])
+                b + 2 * Bo[i,o] <= 48 + bigM * (1 - Y[i, b, t, o])
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
@@ -184,18 +188,19 @@ def agregar_restricciones(ls_activas):
     # R4
     # Conservación de flujo inventario
     if 4 in ls_activas:
-        r4a_sum1 = lambda b, t: quicksum(
-            W[i, b, t, o] for o in Origenes for i in Camiones 
+        r4a_sum1 = lambda t: quicksum(
+            W[i, b, t, o] for o in Origenes for i in Camiones for b in Bloques
         )
         r4a_sum2 = lambda t: quicksum(Md[d, t] for d in Destinos)
         model.addConstrs(
             (
-                U[1, t + 1] == U[48, t] + r4a_sum1(b, t) - r4a_sum2(t)
-                for b in Bloques
-                for t in Dias[:-1]
+                U[1, t + 1] == U[48, t] + r4a_sum1(t) - r4a_sum2(t)
+                # for b in Bloques
+                for t in Dias[:-2]
             ),
             name="R4a",
         )
+
         Camiones_r4b_bo = lambda b, o: [i for i in Camiones if b < Bo[(i, o)]]
         Camiones_r4b_bd = lambda b, d: [i for i in Camiones if b < Bd[(i, d)]]
         r4b_sum1 = lambda b, t: quicksum(
