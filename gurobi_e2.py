@@ -271,18 +271,17 @@ def agregar_restricciones(ls_activas):
             name="R6b",
         )
 
-    # R7
-    if 7 in ls_activas:
+    # R8
+    if 8 in ls_activas:
         model.addConstrs(
             (
-                Z[i, b, t, j, d] <= Q[i]
+                X[i, b, t, d] <= Q[i]
                 for i in Camiones
-                for t in Dias
                 for b in Bloques
+                for t in Dias
                 for d in Destinos
-                for j in Pedidos
             ),
-            name="R7a",
+            name="R8a",
         )
         model.addConstrs(
             (
@@ -292,7 +291,7 @@ def agregar_restricciones(ls_activas):
                 for b in Bloques
                 for o in Origenes
             ),
-            name="R7b",
+            name="R8b",
         )
 
     # R9
