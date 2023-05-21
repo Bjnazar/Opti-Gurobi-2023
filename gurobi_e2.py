@@ -379,6 +379,7 @@ def agregar_restricciones(ls_activas):
         )
 
     # R14
+    # Relaciñon entre alfa y beta
     if 14 in ls_activas:
         model.addConstrs(
             (
@@ -390,6 +391,7 @@ def agregar_restricciones(ls_activas):
         )
 
     # R15
+    # Flujo de producción
     if 15 in ls_activas:
         model.addConstrs(
             (
