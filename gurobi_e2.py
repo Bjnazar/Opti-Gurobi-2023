@@ -352,9 +352,10 @@ def agregar_restricciones(ls_activas):
             name="R11b",
         )
 
-    # R12
-    # quedan pendientes R12c y R12d que no las entendí bien en el word, mas que nada el indice b
-    if 12 in ls_activas:
+    # R13
+    # Relación de las variables con alfa
+    # TODO: quedan pendientes R13c y R13d que no las entendí bien en el word, mas que nada el indice b
+    if 13 in ls_activas:
         model.addConstrs(
             (
                 (1 - Z[i, b, t, j, d]) >= alpha[i, b, t]
@@ -364,7 +365,7 @@ def agregar_restricciones(ls_activas):
                 for d in Destinos
                 for j in Pedidos(d)
             ),
-            name="R12a",
+            name="R13a",
         )
 
         model.addConstrs(
@@ -375,7 +376,7 @@ def agregar_restricciones(ls_activas):
                 for t in Dias
                 for o in Origenes
             ),
-            name="R12b",
+            name="R13b",
         )
 
     # R14
