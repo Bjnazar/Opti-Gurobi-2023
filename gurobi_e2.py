@@ -163,7 +163,7 @@ def agregar_restricciones(ls_activas):
     # R3
     # Cada camión que parte debe volver el mismo día
     if 3 in ls_activas:
-        model.addConstr(
+        model.addConstrs(
             (
                 b + 2 * Bd[i,d] <= 48 + bigM * (1 - Z[i, b, t, j, d])
                 for i in Camiones
@@ -174,7 +174,7 @@ def agregar_restricciones(ls_activas):
             ),
             name="R3a"
         )
-        model.addConstr(
+        model.addConstrs(
             (
                 b + 2 * Bo[i,o] <= 48 + bigM * (1 - Y[i, b, t, o])
                 for i in Camiones
