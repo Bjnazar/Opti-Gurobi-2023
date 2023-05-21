@@ -22,7 +22,7 @@ Destinos = range(1, num_destinos + 1)  # d in D
 Origenes = range(1, num_origenes + 1)  # o in O
 Dias = range(1, num_dias + 1)  # t in T
 Bloques = range(1, 48 + 1)  # b in {1,...,48}
-Pedidos = range(1, J) 
+Pedidos = range(1, J + 1)
 print("Conjuntos construidos")
 
 # Utils
@@ -196,7 +196,7 @@ def agregar_restricciones(ls_activas):
             (
                 U[1, t + 1] == U[48, t] + r4a_sum1(t) - r4a_sum2(t)
                 # for b in Bloques
-                for t in Dias[:-2]
+                for t in Dias[:-1]
             ),
             name="R4a",
         )
@@ -385,7 +385,7 @@ def agregar_restricciones(ls_activas):
         )
 
     # R14
-    # Relaciñon entre alfa y beta
+    # Relación entre alfa y beta
     if 14 in ls_activas:
         model.addConstrs(
             (
@@ -431,7 +431,7 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
         ):  # Si no funciona, apretar varias veces Ctrl + C bien seguido
             os._exit()
         finally:
-            continue
+            pass
 
 
 probar_restricciones(1, 14)
