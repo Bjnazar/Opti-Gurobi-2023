@@ -90,20 +90,26 @@ print("Variables de decisión instanciadas")
 def agregar_restricciones(ls_activas):
     # R1
     if 1 in ls_activas:
-        b_p = lambda o, i: math.ceil(Do[o] / (2 * V[i]))
         model.addConstrs(
             (
-                Y[i, b, t, o] == Y[i, b - b_p(o, i), t, o]
+                bigM * (1 - Y[i, b, t, o]) + A[i] >= 2 * Do[o]
                 for i in Camiones
-                for o in Origenes
-                for b in Bloques[b_p(o, i) :]
                 for t in Dias
+                for b in Bloques
+                for o in Origenes
             ),
             name="R1a",
         )
-
         model.addConstrs(
-            (b_p(o, i) <= 47 for i in Camiones for o in Origenes), name="R1b"
+            (
+                bigM * (1 - Z[i, b, t, j, d]) + A[i] >= 2 * Dd[d]
+                for i in Camiones
+                for t in Dias
+                for b in Bloques
+                for d in Destinos
+                for j in Pedidos(d)
+            ),
+            name="R1b",
         )
 
     # R2
