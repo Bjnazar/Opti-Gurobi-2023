@@ -316,10 +316,10 @@ def agregar_restricciones(ls_activas):
     if 9 in ls_activas:
         model.addConstrs((U[b, t] <= Qmax for b in Bloques for t in Dias), name="R9")
 
-    # R10
+    # R11
     # esta restricción esta distinta en el word, pero segun yo al convertir la
     # sumatoria de destintos en un cuantificador afuera, no altera la restricción. Lo hice para facilitar el código.
-    if 10 in ls_activas:
+    if 11 in ls_activas:
         model.addConstrs(
             (
                 quicksum(
@@ -329,7 +329,7 @@ def agregar_restricciones(ls_activas):
                 for d in Destinos
                 for j in Pedidos
             ),
-            name="R10",
+            name="R11",
         )
 
     # R12
