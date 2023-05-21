@@ -1,6 +1,7 @@
-from gurobipy import GRB, Model, quicksum
 from random import randint, seed
 import math
+import os
+from gurobipy import GRB, Model, quicksum, GurobiError
 
 seed(10)
 
@@ -21,6 +22,7 @@ Origenes = range(num_origenes)  # o in O
 Dias = range(num_dias)  # t in T
 Bloques = range(48)  # b in {1,...,48}
 Pedidos = lambda d: range(p[d])  # j in {1,...,pd}, no se si este bien, solo una idea
+print("Conjuntos construidos")
 
 # Construcción de los parametros
 V = {i: randint(10, 100) for i in Camiones}  # V_i
@@ -41,6 +43,7 @@ Qmax = randint(10, 100)
 Ce = randint(10, 100)
 G = randint(10, 100)
 R = {o: randint(10, 100) for o in Origenes}  # R_o
+print("Parametros construidos")
 
 # ------------ Generar el modelo ------------
 model = Model("Entrega 2 Proyecto")
@@ -71,11 +74,12 @@ alpha = model.addVars(Camiones, Bloques, Dias, vtype=GRB.BINARY, name="alpha_ibt
 beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
 
 model.update()
+print("Variables de decisión instanciadas")
 
 # ------------ Agregar restricciones ------------
 
 # Editar esta lista para correr el modelo con distintas restricciones activas
-ls_activas = [1, 2, 3, 4, 5]
+# ls_activas = [1, 2, 3, 4, 5]
 
 
 def agregar_restricciones(ls_activas):
@@ -336,8 +340,28 @@ def agregar_restricciones(ls_activas):
     #  al crear las variables y definir sus respectivos tipos de datos
 
 
-agregar_restricciones(ls_activas)
+# agregar_restricciones(ls_activas)
 
+
+def probar_restricciones(r_idx_inicial, r_idx_final):
+    print("Probando restriciones...")
+    for ls_una_r in [[idx] for idx in range(r_idx_inicial, r_idx_final + 1)]:
+        try:
+            agregar_restricciones(ls_una_r)
+            print(f"R{ls_una_r[0]} OK")
+        except GurobiError as err:  # Gracias Berni
+            print("Error code " + str(err.errno) + ": " + str(err))
+        except (
+            KeyboardInterrupt
+        ):  # Si no funciona, apretar varias veces Ctrl + C bien seguido
+            os._exit()
+        finally:
+            continue
+
+
+probar_restricciones(1, 14)  # 1 y 2 ya me salieron OK
+#  OK (no crashean): 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+#  NO OK (crashean): 3, 4
 
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
@@ -353,7 +377,8 @@ objetivo = quicksum(
 model.setObjective(objetivo, GRB.MINIMIZE)
 
 # ------------ Optimización del modelo ------------
-model.optimize()
+print("Optimizando...")
+model.optimize()  # Unfeasible por ahora
 
 # ------------ Manejo de soluciones ------------
-model.printAttr("X")
+model.printAttr("X")  # Tira error por ahora
