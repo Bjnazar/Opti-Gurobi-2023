@@ -24,6 +24,9 @@ Bloques = range(48)  # b in {1,...,48}
 Pedidos = lambda d: range(p[d])  # j in {1,...,pd}, no se si este bien, solo una idea
 print("Conjuntos construidos")
 
+# Utils
+ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
+
 # Construcción de los parametros
 V = {i: randint(10, 100) for i in Camiones}  # V_i
 A = {i: randint(10, 100) for i in Camiones}  # A_i
@@ -43,6 +46,8 @@ Qmax = randint(10, 100)
 Ce = randint(10, 100)
 G = randint(10, 100)
 R = {o: randint(10, 100) for o in Origenes}  # R_o
+Bo = {(i, o): ceil(Do[o] / V[i]) for i in Camiones for o in Origenes}
+Bd = {(i, d): ceil(Dd[d] / V[i]) for i in Camiones for d in Destinos}
 print("Parametros construidos")
 
 # ------------ Generar el modelo ------------
