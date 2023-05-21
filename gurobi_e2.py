@@ -217,9 +217,11 @@ def agregar_restricciones(ls_activas):
         r3c_sum2 = quicksum(X[i, 1, 1, d] for d in Destinos for i in Camiones)
         model.addConstr(U[1, 1] == r3c_sum1 - r3c_sum2, name="R4c")
 
-    # R4
-    if 4 in ls_activas:
-        model.addConstrs((U[48, t - 1] == U[1, t] for t in Dias[1:]), name="R4")
+    # R5
+    # Conservación de inventario entre el último bloque de un día y
+    ## el primer bloque del día siguiente
+    if 5 in ls_activas:
+        model.addConstrs((U[48, t - 1] == U[1, t] for t in Dias[1:]), name="R5")
 
     # R5
     if 5 in ls_activas:
