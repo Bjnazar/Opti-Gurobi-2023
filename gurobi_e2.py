@@ -378,31 +378,31 @@ def agregar_restricciones(ls_activas):
             name="R12b",
         )
 
-    # R13
-    if 13 in ls_activas:
+    # R14
+    if 14 in ls_activas:
         model.addConstrs(
             (
                 quicksum(alpha[i, b, t] for b in Bloques for t in Dias)
                 <= bigM * beta[i]
                 for i in Camiones
             ),
-            name="R13",
-        )
-
-    # R14
-    if 14 in ls_activas:
-        model.addConstrs(
-            (
-                M[b, t, o]
-                == R[o] + M[b, t - 1, o] - quicksum(W[i, b, t, o] for i in Camiones)
-                for o in Origenes
-                for b in Bloques
-                for t in Dias[1:]
-            ),
             name="R14",
         )
 
     # R15
+    if 15 in ls_activas:
+        model.addConstrs(
+            (
+                M[b, t, o]
+                == R[o] + M[b, t - 1, o] - quicksum(W[i, b, t, o] for i in Camiones)
+                for b in Bloques
+                for o in Origenes
+                for t in Dias[1:]
+            ),
+            name="R15",
+        )
+
+    # R16
     # Las restricciones de la naturaleza de las variables las establece gurobi
     #  al crear las variables y definir sus respectivos tipos de datos
 
