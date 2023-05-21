@@ -89,6 +89,7 @@ print("Variables de decisión instanciadas")
 
 def agregar_restricciones(ls_activas):
     # R1
+    # Autonomía (distancia max de cada recorrido)
     if 1 in ls_activas:
         model.addConstrs(
             (
@@ -113,22 +114,45 @@ def agregar_restricciones(ls_activas):
         )
 
     # R2
+    # Relación entre alpha (camión ocupado) con Z e Y (camión parte)
     if 2 in ls_activas:
-        b_pp = lambda d, i: math.ceil(Dd[d] / (2 * V[i]))
+        Bloques_para_b0_bd = dict()
+        Bloques_para_b0_bo = dict()
+        for i in Camiones:
+            for b1 in Bloques[:-2]:
+                for d in Destinos:
+                    final = b1 + 2 * Bd[(i, d)]
+                    if final > 48:
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1:]
+                    else:
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1:final - 1]
+                for o in Origenes:
+                    final = b1 + 2 * Bo[(i, o)]
+                    if final > 48:
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1:]
+                    else:
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1:final - 1]
         model.addConstrs(
             (
-                Z[i, b, t, j, d] >= alpha[i, b - b_pp(d, i), t]
+                alpha[i, b0, t] >= Z[i, b1, t, j, d]
                 for i in Camiones
-                for d in Destinos
-                for b in Bloques[b_pp(d, i) :]
                 for t in Dias
+                for d in Destinos
                 for j in Pedidos(d)
+                for b1 in Bloques[:-2]
+                for b0 in Bloques_para_b0_bd[(b1, i, d)]
             ),
             name="R2a",
-        )
-
         model.addConstrs(
-            (b_pp(d, i) <= 47 for i in Camiones for d in Destinos), name="R2b"
+            (
+                alpha[i, b0, t] >= Y[i, b1, t, o]
+                for i in Camiones
+                for t in Dias
+                for d in Destinos
+                for b1 in Bloques[:-2]
+                for b0 in Bloques_para_b0_bo[(b1, i, o)]
+            ),
+            name="R2b",
         )
 
     # R3
