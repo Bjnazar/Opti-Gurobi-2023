@@ -16,12 +16,12 @@ num_dias = 10
 bigM = 10**9
 
 # Construcción de los conjuntos
-Camiones = range(num_camiones_diesel + num_camiones_electricos)  # i in I
-Destinos = range(num_destinos)  # d in D
-Origenes = range(num_origenes)  # o in O
-Dias = range(num_dias)  # t in T
-Bloques = range(48)  # b in {1,...,48}
-Pedidos = lambda d: range(p[d])  # j in {1,...,pd}, no se si este bien, solo una idea
+Camiones = range(1, num_camiones_diesel + num_camiones_electricos + 1)  # i in I
+Destinos = range(1, num_destinos + 1)  # d in D
+Origenes = range(1, num_origenes + 1)  # o in O
+Dias = range(1, num_dias + 1)  # t in T
+Bloques = range(1, 48 + 1)  # b in {1,...,48}
+Pedidos = lambda d: range(1, p[d] + 1)  # j in {1,...,pd}, no se si este bien, solo una idea
 print("Conjuntos construidos")
 
 # Utils
