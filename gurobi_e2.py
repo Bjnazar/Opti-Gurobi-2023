@@ -296,6 +296,7 @@ def agregar_restricciones(ls_activas):
         )
 
     # R9
+    # El costo total no debe pasarse del máximo
     if 9 in ls_activas:
         r9_sum1 = lambda i, b, t: quicksum(
             Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
@@ -313,10 +314,12 @@ def agregar_restricciones(ls_activas):
         )
 
     # R10
+    # Los almacenes de madera de la casa matriz tienen una capacidad máxima
     if 10 in ls_activas:
         model.addConstrs((U[b, t] <= Qmax for b in Bloques for t in Dias), name="R10")
 
     # R11
+    # Todos los pedidos deben ser despachados
     # esta restricción esta distinta en el word, pero segun yo al convertir la
     # sumatoria de destintos en un cuantificador afuera, no altera la restricción. Lo hice para facilitar el código.
     if 11 in ls_activas:
