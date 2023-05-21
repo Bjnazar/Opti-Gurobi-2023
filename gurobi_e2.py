@@ -312,9 +312,9 @@ def agregar_restricciones(ls_activas):
             name="R8",
         )
 
-    # R9
-    if 9 in ls_activas:
-        model.addConstrs((U[b, t] <= Qmax for b in Bloques for t in Dias), name="R9")
+    # R10
+    if 10 in ls_activas:
+        model.addConstrs((U[b, t] <= Qmax for b in Bloques for t in Dias), name="R10")
 
     # R11
     # esta restricción esta distinta en el word, pero segun yo al convertir la
