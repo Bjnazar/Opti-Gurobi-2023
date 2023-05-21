@@ -332,29 +332,30 @@ def agregar_restricciones(ls_activas):
             name="R10",
         )
 
-    # R11
-    if 11 in ls_activas:
+    # R12
+    # Los pedidos deben llegar a tiempo
+    if 12 in ls_activas:
         model.addConstrs(
             (
-                Y[i, b, t, o] * (b + Do[o] * (V[i] ** -1)) <= tmaxo
+                Y[i, b, t, o] * (b + Bo[i,o]) <= tmaxo
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
                 for o in Origenes
             ),
-            name="R11a",
+            name="R12a",
         )
 
         model.addConstrs(
             (
-                Z[i, b, t, j, d] * (b + Dd[d] * (V[i] ** -1)) <= tmaxd
+                Z[i, b, t, j, d] * (b + Bd[i,d]) <= tmaxd
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
                 for j in Pedidos
             ),
-            name="R11b",
+            name="R12b",
         )
 
     # R13
