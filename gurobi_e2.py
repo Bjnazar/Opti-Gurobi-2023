@@ -184,37 +184,38 @@ def agregar_restricciones(ls_activas):
     # R4
     # Conservación de flujo inventario
     if 4 in ls_activas:
-        r3a_sum1 = lambda b, t: quicksum(
-            W[i, b, t, o] for o in Origenes for i in Camiones
+        r4a_sum1 = lambda b, t: quicksum(
+            W[i, b, t, o] for o in Origenes for i in Camiones 
         )
-        r3a_sum2 = lambda t: quicksum(Md[d, t] for d in Destinos)
+        r4a_sum2 = lambda t: quicksum(Md[d, t] for d in Destinos)
         model.addConstrs(
             (
-                U[1, t + 1] == U[48, t] + r3a_sum1(b, t) - r3a_sum2(t)
+                U[1, t + 1] == U[48, t] + r4a_sum1(b, t) - r4a_sum2(t)
                 for b in Bloques
                 for t in Dias[:-1]
             ),
-            name="R3a",
+            name="R4a",
         )
-
-        r3b_sum1 = lambda b, t: quicksum(
-            W[i, b, t, o] for o in Origenes for i in Camiones
+        Camiones_r4b_bo = lambda b, o: [i for i in Camiones if b < Bo[(i, o)]]
+        Camiones_r4b_bd = lambda b, d: [i for i in Camiones if b < Bd[(i, d)]]
+        r4b_sum1 = lambda b, t: quicksum(
+            W[i, b - Bo[(i, o)], t, o] for o in Origenes for i in Camiones_r4b_bo(b, o)
         )
-        r3b_sum2 = lambda b, t: quicksum(
-            X[i, b, t, d] for d in Destinos for i in Camiones
+        r4b_sum2 = lambda b, t: quicksum(
+            X[i, b - Bd[(i, d)], t, d] for d in Destinos for i in Camiones_r4b_bd(b, d)
         )
         model.addConstrs(
             (
-                U[b + 1, t] == U[b, t] + r3b_sum1(b, t) - r3b_sum2(b, t)
+                U[b + 1, t] == U[b, t] + r4b_sum1(b, t) - r4b_sum2(b, t)
                 for b in Bloques[:-1]
                 for t in Dias
             ),
-            name="R3b",
+            name="R4b",
         )
 
         r3c_sum1 = quicksum(W[i, 1, 1, o] for o in Origenes for i in Camiones)
         r3c_sum2 = quicksum(X[i, 1, 1, d] for d in Destinos for i in Camiones)
-        model.addConstr(U[1, 1] == r3c_sum1 - r3c_sum2, name="R3c")
+        model.addConstr(U[1, 1] == r3c_sum1 - r3c_sum2, name="R4c")
 
     # R4
     if 4 in ls_activas:
