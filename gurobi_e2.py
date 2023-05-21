@@ -29,12 +29,19 @@ print("Conjuntos construidos")
 ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 
 # Construcción de los parametros
-V = {i: randint(50, 90) for i in Camiones}  # V_i
+V = {i: 70 for i in Camiones}  # V_i
 A = {i: randint(150, 643) for i in Camiones}  # A_i
-E = {i: randint(1, 2) for i in Camiones}  # E_i
-Ckm = {i: randint(10, 100) for i in Camiones}  # Ckm_i
-Cc = {i: randint(10, 100) for i in Camiones}  # Cc_i
-Q = {i: randint(10, 100) for i in Camiones}  # Q_i
+
+E = {i: randint(1, 5) for i in Camiones[0: num_camiones_diesel + 1]}  # E_i
+for i in range(num_camiones_diesel + 1, num_camiones_diesel + num_camiones_electricos):
+    E[i] = 0
+
+Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
+
+Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
+
+
+Q = {i: randint(37, 64) for i in Camiones}  # Q_i
 Do = {o: randint(10, 100) for o in Origenes}  # Do_o
 Dd = {d: randint(10, 100) for d in Destinos}  # Dd_d
 Md = {(d, t): randint(10, 100) for d in Destinos for t in Dias}  # Md_dt
