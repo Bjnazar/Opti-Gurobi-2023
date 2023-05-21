@@ -143,6 +143,7 @@ def agregar_restricciones(ls_activas):
                 for b0 in Bloques_para_b0_bd[(b1, i, d)]
             ),
             name="R2a",
+        )
         model.addConstrs(
             (
                 alpha[i, b0, t] >= Y[i, b1, t, o]
@@ -156,7 +157,33 @@ def agregar_restricciones(ls_activas):
         )
 
     # R3
+    # Cada camión que parte debe volver el mismo día
     if 3 in ls_activas:
+        model.addConstr(
+            (
+                b + 2 * Bd[id] <= 48 + bigM * (1 - Z[i, b, t, j, d])
+                for i in Camiones
+                for d in Destinos
+                for b in Bloques
+                for t in Dias
+                for j in Pedidos(d)
+            ),
+            name="R3a"
+        )
+        model.addConstr(
+            (
+                b + 2 * Bo[io] <= 48 + bigM * (1 - Y[i, b, t, o])
+                for i in Camiones
+                for b in Bloques
+                for t in Dias
+                for o in Origenes
+            ),
+            name="R3b"
+        )
+
+    # R4
+    # Conservación de flujo inventario
+    if 4 in ls_activas:
         r3a_sum1 = lambda b, t: quicksum(
             W[i, b, t, o] for o in Origenes for i in Camiones
         )
