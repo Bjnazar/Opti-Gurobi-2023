@@ -295,21 +295,21 @@ def agregar_restricciones(ls_activas):
             name="R7b",
         )
 
-    # R8
-    if 8 in ls_activas:
-        r8_sum1 = lambda i, b, t: quicksum(
+    # R9
+    if 9 in ls_activas:
+        r9_sum1 = lambda i, b, t: quicksum(
             Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
         )
-        r8_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
-        r8_sum3 = lambda t, b: quicksum(
+        r9_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
+        r9_sum3 = lambda t, b: quicksum(
             beta[i] * Cc[i]
-            + 2 * (Ckm[i] + E[i] * Ce) * r8_sum1(i, b, t)
-            + r8_sum2(i, b, t)
+            + 2 * (Ckm[i] + E[i] * Ce) * r9_sum1(i, b, t)
+            + r9_sum2(i, b, t)
             for i in Camiones
         )
         model.addConstr(
-            quicksum(U[b, t] * Cq + r8_sum3(t, b) for t in Dias for b in Bloques) <= G,
-            name="R8",
+            quicksum(U[b, t] * Cq + r9_sum3(t, b) for t in Dias for b in Bloques) <= G,
+            name="R9",
         )
 
     # R10
