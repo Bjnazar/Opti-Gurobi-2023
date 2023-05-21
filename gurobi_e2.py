@@ -153,7 +153,7 @@ def agregar_restricciones(ls_activas):
                 alpha[i, b0, t] >= Y[i, b1, t, o]
                 for i in Camiones
                 for t in Dias
-                for d in Destinos
+                for o in Origenes
                 for b1 in Bloques[:-2]
                 for b0 in Bloques_para_b0_bo[(b1, i, o)]
             ),
