@@ -13,7 +13,7 @@ num_camiones_diesel = 10
 num_destinos = 10
 num_origenes = 10
 num_dias = 10
-bigM = 10**6
+bigM = 10**9
 
 # Construcción de los conjuntos
 Camiones = range(num_camiones_diesel + num_camiones_electricos)  # i in I
