@@ -201,8 +201,8 @@ def agregar_restricciones(ls_activas):
             name="R4a",
         )
 
-        Camiones_r4b_bo = lambda b, o: [i for i in Camiones if b < Bo[(i, o)]]
-        Camiones_r4b_bd = lambda b, d: [i for i in Camiones if b < Bd[(i, d)]]
+        Camiones_r4b_bo = lambda b, o: [i for i in Camiones if b > Bo[(i, o)]]
+        Camiones_r4b_bd = lambda b, d: [i for i in Camiones if b > Bd[(i, d)]]
         r4b_sum1 = lambda b, t: quicksum(
             W[i, b - Bo[(i, o)], t, o] for o in Origenes for i in Camiones_r4b_bo(b, o)
         )
