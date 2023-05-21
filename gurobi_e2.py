@@ -246,29 +246,16 @@ def agregar_restricciones(ls_activas):
             name="R6",
         )
 
-    # R6
-    if 6 in ls_activas:
-        # en el word sale para esta restricción que esta pendiente modificarla
+    # R7
+    if 7 in ls_activas:
         model.addConstrs(
             (
-                quicksum(W[i, b, t, o] for i in Camiones for b in Bloques) <= Mo[o, t]
-                for t in Dias
-                for o in Origenes
-            ),
-            name="R6a",
-        )
-
-        # en esta restricción asumi que la variable x que
-        #  aparece en el word es un error de tipeo de la variable Z
-        model.addConstrs(
-            (
-                quicksum(Z[i, b, t, j, d] for i in Camiones) == Md[d, t]
-                for t in Dias
+                quicksum(X[i, b, t, d] for i in Camiones) <= Md[d, t]
                 for b in Bloques
+                for t in Dias
                 for d in Destinos
-                for j in Pedidos
             ),
-            name="R6b",
+            name="R7",
         )
 
     # R8
