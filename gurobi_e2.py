@@ -116,8 +116,8 @@ def agregar_restricciones(ls_activas):
     # R2
     # Relación entre alpha (camión ocupado) con Z e Y (camión parte)
     if 2 in ls_activas:
-        Bloques_para_b0_bd = dict()
-        Bloques_para_b0_bo = dict()
+        Bloques_para_b0_bd = {}
+        Bloques_para_b0_bo = {}
         for i in Camiones:
             for b1 in Bloques[:-2]:
                 for d in Destinos:
