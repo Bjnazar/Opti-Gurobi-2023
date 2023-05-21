@@ -223,20 +223,22 @@ def agregar_restricciones(ls_activas):
     if 5 in ls_activas:
         model.addConstrs((U[48, t - 1] == U[1, t] for t in Dias[1:]), name="R5")
 
-    # R5
-    if 5 in ls_activas:
-        r5_sum1 = lambda i, b, t: quicksum(
+    # R6
+    # Cada camión puede estar asignado máximo en cada bloque de tiempo en un día
+    # TODO: (decidir si) implementar la propuesta de cambio
+    if 6 in ls_activas:
+        r6_sum1 = lambda i, b, t: quicksum(
             Z[i, b, t, j, d] for d in Destinos for j in Pedidos(d)
         )
-        r5_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
+        r6_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
         model.addConstrs(
             (
-                alpha[i, b, t] + r5_sum1(i, b, t) + r5_sum2(i, b, t) <= 1
+                alpha[i, b, t] + r6_sum1(i, b, t) + r6_sum2(i, b, t) <= 2
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
             ),
-            name="R5",
+            name="R6",
         )
 
     # R6
