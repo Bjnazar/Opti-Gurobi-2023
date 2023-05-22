@@ -92,12 +92,7 @@ beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
 model.update()
 print("Variables de decisión instanciadas")
 
-# ------------ Agregar restricciones ------------
-
-# Editar esta lista para correr el modelo con distintas restricciones activas
-# ls_activas = [1, 2, 3, 4, 5]
-
-
+# ------------ Función agregar restricciones ------------
 def agregar_restricciones(ls_activas):
     # R1
     # Autonomía (distancia max de cada recorrido)
@@ -412,10 +407,11 @@ def agregar_restricciones(ls_activas):
     #  al crear las variables y definir sus respectivos tipos de datos
 
 
-# agregar_restricciones(ls_activas)
-
-
 def probar_restricciones(r_idx_inicial, r_idx_final):
+    """
+    Esta es para probar si las restricciones tiran error o no.
+    Afortunadamente, ya hemos pasado esa etapa.
+    """
     print("Probando restriciones...")
     for ls_una_r in [[idx] for idx in range(r_idx_inicial, r_idx_final + 1)]:
         try:
@@ -430,8 +426,11 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
         finally:
            continue
 
+# -------- Zona de prueba de restricciones ----------
+# Editar esta lista para correr el modelo con distintas restricciones activas
+ls_activas = list(range(1, 16))
+agregar_restricciones(ls_activas)
 
-probar_restricciones(8, 15)
 
 # Test Domingo 21 de Mayo 20:30
 # Nada crashea hasta optimizar inclusive, pero es insatisfacible
