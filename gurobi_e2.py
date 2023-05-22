@@ -32,8 +32,8 @@ ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 V = {i: 70 for i in Camiones}  # V_i
 A = {i: randint(150, 643) for i in Camiones}  # A_i
 
-E = {i: randint(1, 5) for i in Camiones[0: num_camiones_diesel + 1]}  # E_i
-for i in range(num_camiones_diesel + 1, num_camiones_diesel + num_camiones_electricos):
+E = {i: randint(1, 5) for i in Camiones[:num_camiones_diesel + 1]}  # E_i
+for i in range(num_camiones_diesel + 1, num_camiones_diesel + num_camiones_electricos + 1):
     E[i] = 0
 
 Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
@@ -430,10 +430,15 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
         ):  # Si no funciona, apretar varias veces Ctrl + C bien seguido
             os._exit()
         finally:
-            pass
+           continue
 
 
-probar_restricciones(1, 14)
+probar_restricciones(8, 15)
+
+# Test Domingo 21 de Mayo 20:30
+# Nada crashea hasta optimizar inclusive, pero es insatisfacible
+
+# resultados desactualizados: version anterior
 #  OK (no crashean): 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 #  NO OK (crashean): 3, 4
 
@@ -446,7 +451,7 @@ objetivo = quicksum(
     2 * E[i] * (fo_sum1(t, b, i) + fo_sum2(t, b, i))
     for t in Dias
     for b in Bloques
-    for i in range(num_camiones_diesel)
+    for i in Camiones
 )
 model.setObjective(objetivo, GRB.MINIMIZE)
 
