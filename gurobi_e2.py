@@ -245,7 +245,7 @@ def agregar_restricciones(ls_activas):
         r6_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
         model.addConstrs(
             (
-                alpha[i, b, t] + r6_sum1(i, b, t) + r6_sum2(i, b, t) <= 2
+                alpha[i, b, t] + r6_sum1(i, b, t) + r6_sum2(i, b, t) <= 1
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
@@ -296,9 +296,7 @@ def agregar_restricciones(ls_activas):
         )
         r9_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
         r9_sum3 = lambda t, b: quicksum(
-            beta[i] * Cc[i]
-            + 2 * (Ckm[i] + E[i] * Ce) * r9_sum1(i, b, t)
-            + r9_sum2(i, b, t)
+            beta[i] * Cc[i] + 2 * (Ckm[i] + E[i] * Ce) * (r9_sum1(i, b, t) + r9_sum2(i, b, t))
             for i in Camiones
         )
         model.addConstr(
@@ -396,6 +394,12 @@ def agregar_restricciones(ls_activas):
     # R15
     # Flujo de producción
     if 15 in ls_activas:
+        i = 0
+        for b in bloques:
+            for o in Origenes:
+                for t in Dias[1:]:
+                    print(b, o, "iteracion:", i)
+                    i += 1
         model.addConstrs(
             (
                 M[b, t, o]
@@ -428,10 +432,10 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
         ):  # Si no funciona, apretar varias veces Ctrl + C bien seguido
             os._exit()
         finally:
-            pass
+            continue
 
 
-probar_restricciones(1, 14)
+probar_restricciones(9, 15)
 #  OK (no crashean): 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 #  NO OK (crashean): 3, 4
 
@@ -444,7 +448,7 @@ objetivo = quicksum(
     2 * E[i] * (fo_sum1(t, b, i) + fo_sum2(t, b, i))
     for t in Dias
     for b in Bloques
-    for i in range(num_camiones_diesel)
+    for i in Camiones
 )
 model.setObjective(objetivo, GRB.MINIMIZE)
 
