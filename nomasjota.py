@@ -8,13 +8,13 @@ seed(10)
 # ------------ Construcción de los datos ------------
 
 # Constantes
-num_camiones_electricos = 2
-num_camiones_diesel = 2
+num_camiones_electricos = 4
+num_camiones_diesel = 4
 num_destinos = 3
 num_origenes = 3
 num_dias = 10
 bigM = 100**9
-J = 5
+# J = 10
 
 # Construcción de los conjuntos
 Camiones = range(1, num_camiones_diesel + num_camiones_electricos + 1)  # i in I
@@ -22,7 +22,7 @@ Destinos = range(1, num_destinos + 1)  # d in D
 Origenes = range(1, num_origenes + 1)  # o in O
 Dias = range(1, num_dias + 1)  # t in T
 Bloques = range(1, 48 + 1)  # b in {1,...,48}
-Pedidos = range(1, J + 1)
+# Pedidos = range(1, J + 1)
 print("Conjuntos construidos")
 
 # Utils
@@ -50,7 +50,7 @@ Mo = {(o, t): randint(10, 100) for o in Origenes for t in Dias}  # Mo_ot
 Cq = 20000
 Qmax = 10000
 Ce = 5000
-G = 5750000000000
+G = 575000000000
 R = {o: randint(10, 100) for o in Origenes}  # R_o
 Bo = {(i, o): ceil(Do[o] / V[i]) for i in Camiones for o in Origenes}
 Bd = {(i, d): ceil(Dd[d] / V[i]) for i in Camiones for d in Destinos}
@@ -67,8 +67,24 @@ W = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="W_
 M = model.addVars(Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="M_bto")
 Y = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.BINARY, name="Y_ibto")
 Z = model.addVars(
-    Camiones, Bloques, Dias, Pedidos, Destinos, vtype=GRB.BINARY, name="Z_ibtjd"
+    Camiones, Bloques, Dias, Destinos, vtype=GRB.BINARY, name="Z_ibtd"
 )
+
+# # no se si este bien, solo una idea
+# variables_z = []
+# for d in Destinos:
+#     z = model.addVars(
+#         Camiones, Bloques, Dias, Pedidos, vtype=GRB.BINARY, name=f"Z_ibtj{d}"
+#     )
+#     variables_z.append(z)
+# Z = {
+#     (i, b, t, j, d): variables_z[d][i, b, t, j]
+#     for i in Camiones
+#     for b in Bloques
+#     for t in Dias
+#     for d in Destinos
+#     for j in Pedidos
+# }
 
 alpha = model.addVars(Camiones, Bloques, Dias, vtype=GRB.BINARY, name="alpha_ibt")
 beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
@@ -94,12 +110,12 @@ def agregar_restricciones(ls_activas):
         )
         model.addConstrs(
             (
-                bigM * (1 - Z[i, b, t, j, d]) + A[i] >= 2 * Dd[d]
+                bigM * (1 - Z[i, b, t, d]) + A[i] >= 2 * Dd[d]
                 for i in Camiones
                 for t in Dias
                 for b in Bloques
                 for d in Destinos
-                for j in Pedidos
+                # for j in Pedidos
             ),
             name="R1b",
         )
@@ -125,10 +141,11 @@ def agregar_restricciones(ls_activas):
                         Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 : final - 1]
         model.addConstrs(
             (
-                alpha[i, b0, t] >= Z[i, b1, t, j, d]
+                alpha[i, b0, t] >= Z[i, b1, t, d]
                 for i in Camiones
                 for t in Dias
                 for d in Destinos
+                # for j in Pedidos
                 for b1 in Bloques[:-2]
                 for b0 in Bloques_para_b0_bd[(b1, i, d)]
             ),
@@ -151,12 +168,12 @@ def agregar_restricciones(ls_activas):
     if 3 in ls_activas:
         model.addConstrs(
             (
-                b + 2 * Bd[i, d] <= 48 + bigM * (1 - Z[i, b, t, j, d])
+                b + 2 * Bd[i, d] <= 48 + bigM * (1 - Z[i, b, t, d])
                 for i in Camiones
                 for d in Destinos
                 for b in Bloques
                 for t in Dias
-                for j in Pedidos
+                # for j in Pedidos
             ),
             name="R3a",
         )
@@ -219,7 +236,7 @@ def agregar_restricciones(ls_activas):
     # TODO: (decidir si) implementar la propuesta de cambio
     if 6 in ls_activas:
         r6_sum1 = lambda i, b, t: quicksum(
-            Z[i, b, t, j, d] for d in Destinos for j in Pedidos
+            Z[i, b, t, d] for d in Destinos  # for j in Pedidos
         )
         r6_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
         model.addConstrs(
@@ -273,7 +290,7 @@ def agregar_restricciones(ls_activas):
     # El costo total no debe pasarse del máximo
     if 9 in ls_activas:
         r9_sum1 = lambda i, b, t: quicksum(
-            Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
+            Z[i, b, t, d] * Dd[d] for d in Destinos #for j in Pedidos
         )
         r9_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
         r9_sum3 = lambda t, b: quicksum(
@@ -299,11 +316,11 @@ def agregar_restricciones(ls_activas):
         model.addConstrs(
             (
                 quicksum(
-                    Z[i, b, t, j, d] for i in Camiones for b in Bloques for t in Dias
+                    Z[i, b, t, d] for i in Camiones for b in Bloques for t in Dias
                 )
                 >= 1
                 for d in Destinos
-                for j in Pedidos
+                #for j in Pedidos
             ),
             name="R11",
         )
@@ -324,12 +341,12 @@ def agregar_restricciones(ls_activas):
 
         model.addConstrs(
             (
-                Z[i, b, t, j, d] * (b + Bd[i, d]) <= tmaxd
+                Z[i, b, t, d] * (b + Bd[i, d]) <= tmaxd
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos
+                #for j in Pedidos
             ),
             name="R12b",
         )
@@ -340,12 +357,12 @@ def agregar_restricciones(ls_activas):
     if 13 in ls_activas:
         model.addConstrs(
             (
-                (1 - Z[i, b, t, j, d]) >= alpha[i, b, t]
+                (1 - Z[i, b, t, d]) >= alpha[i, b, t]
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos
+                # for j in Pedidos
             ),
             name="R13a",
         )
@@ -421,7 +438,7 @@ agregar_restricciones(ls_activas)
 
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
-    Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
+    Z[i, b, t, d] * Dd[d] for d in Destinos #for j in Pedidos
 )
 fo_sum2 = lambda t, b, i: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
 objetivo = quicksum(
