@@ -254,6 +254,7 @@ def agregar_restricciones(ls_activas):
         )
 
     # R7
+    # Las demandas de madera en los destinos deben satisfacerse
     if 7 in ls_activas:
         model.addConstrs(
             (
@@ -266,6 +267,7 @@ def agregar_restricciones(ls_activas):
         )
 
     # R8
+    # Cada camión puede cargar un máximo de madera
     if 8 in ls_activas:
         model.addConstrs(
             (
