@@ -41,18 +41,17 @@ Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
 Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
 
 
-Q = {i: randint(37, 64) for i in Camiones}  # Q_i
-Do = {o: randint(10, 100) for o in Origenes}  # Do_o
-Dd = {d: randint(10, 100) for d in Destinos}  # Dd_d
-Md = {(d, t): randint(10, 100) for d in Destinos for t in Dias}  # Md_dt
-p = {d: randint(10, 100) for d in Destinos}  # p_d
-tmaxd = randint(10, 100)   # TODO: Este no era distinto por cada destino? No sé, alguien más revise porfa. Milan.
-tmaxo = randint(10, 100)   # TODO: Este no era distinto por cada origen? No sé, alguien más revise porfa. Milan.
+Q = {i: randint(106, 200) for i in Camiones}  # Q_i
+Do = {o: randint(27, 643) for o in Origenes}  # Do_o
+Dd = {d: randint(27, 643) for d in Destinos}  # Dd_d
+Md = {(d, t): randint(50, 500) for d in Destinos for t in Dias}  # Md_dt
+tmaxd = 7   # TODO: Este no era distinto por cada destino? No sé, alguien más revise porfa. Milan.
+tmaxo = 7   # TODO: Este no era distinto por cada origen? No sé, alguien más revise porfa. Milan.
 Mo = {(o, t): randint(10, 100) for o in Origenes for t in Dias}  # Mo_ot
-Cq = randint(10, 100)
-Qmax = randint(10, 100)
-Ce = randint(10, 100)
-G = randint(10, 100)
+Cq = 20000
+Qmax = 10000
+Ce = 5000
+G = 575000000
 R = {o: randint(10, 100) for o in Origenes}  # R_o
 Bo = {(i, o): ceil(Do[o] / V[i]) for i in Camiones for o in Origenes}
 Bd = {(i, d): ceil(Dd[d] / V[i]) for i in Camiones for d in Destinos}
@@ -327,16 +326,16 @@ def agregar_restricciones(ls_activas):
     # R12
     # Los pedidos deben llegar a tiempo
     if 12 in ls_activas:
-        model.addConstrs(
-            (
-                Y[i, b, t, o] * (b + Bo[i,o]) <= tmaxo
-                for i in Camiones
-                for b in Bloques
-                for t in Dias
-                for o in Origenes
-            ),
-            name="R12a",
-        )
+        # model.addConstrs(
+        #     (
+        #         Y[i, b, t, o] * (b + Bo[i,o]) <= tmaxo
+        #         for i in Camiones
+        #         for b in Bloques
+        #         for t in Dias
+        #         for o in Origenes
+        #     ),
+        #     name="R12a",
+        # )
 
         model.addConstrs(
             (
@@ -408,7 +407,7 @@ def agregar_restricciones(ls_activas):
     #  al crear las variables y definir sus respectivos tipos de datos
 
 # Editar esta lista para correr el modelo con distintas restricciones activas
-ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13]
 
 agregar_restricciones(ls_activas)
 
@@ -452,8 +451,14 @@ print("Optimizando...")
 model.optimize()  # Unfeasible por ahora
 
 # ------------ Manejo de soluciones ------------
-if model.status == GRB.OPTIMAL:
-    model.printAttr('X')
- # Tira error por ahora
-else:
-    print("Trata de nuevoo!")
+# if model.status == GRB.OPTIMAL:
+#     model.printAttr('X')
+#  # Tira error por ahora
+# else:
+#     print("Trata de nuevoo!")
+
+for i in range(8):
+    try:
+        print(beta[i])
+    else:
+        pass 
