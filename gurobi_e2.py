@@ -94,10 +94,6 @@ print("Variables de decisión instanciadas")
 
 # ------------ Agregar restricciones ------------
 
-# Editar esta lista para correr el modelo con distintas restricciones activas
-# ls_activas = [1, 2, 3, 4, 5]
-
-
 def agregar_restricciones(ls_activas):
     # R1
     # Autonomía (distancia max de cada recorrido)
@@ -396,12 +392,6 @@ def agregar_restricciones(ls_activas):
     # R15
     # Flujo de producción
     if 15 in ls_activas:
-        i = 0
-        for b in bloques:
-            for o in Origenes:
-                for t in Dias[1:]:
-                    print(b, o, "iteracion:", i)
-                    i += 1
         model.addConstrs(
             (
                 M[b, t, o]
@@ -417,12 +407,14 @@ def agregar_restricciones(ls_activas):
     # Las restricciones de la naturaleza de las variables las establece gurobi
     #  al crear las variables y definir sus respectivos tipos de datos
 
+# Editar esta lista para correr el modelo con distintas restricciones activas
+ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
-# agregar_restricciones(ls_activas)
+agregar_restricciones(ls_activas)
 
 
 def probar_restricciones(r_idx_inicial, r_idx_final):
-    print("Probando restriciones...")
+    print("Probando restricciones...")
     for ls_una_r in [[idx] for idx in range(r_idx_inicial, r_idx_final + 1)]:
         try:
             agregar_restricciones(ls_una_r)
@@ -437,7 +429,7 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
            continue
 
 
-probar_restricciones(8, 15)
+# probar_restricciones(1, 6)
 
 # Test Domingo 21 de Mayo 20:30
 # Nada crashea hasta optimizar inclusive, pero es insatisfacible
@@ -464,4 +456,8 @@ print("Optimizando...")
 model.optimize()  # Unfeasible por ahora
 
 # ------------ Manejo de soluciones ------------
-model.printAttr("X")  # Tira error por ahora
+if model.status == GRB.OPTIMAL:
+    model.printAttr('X')
+ # Tira error por ahora
+else:
+    print("Trata de nuevoo!")
