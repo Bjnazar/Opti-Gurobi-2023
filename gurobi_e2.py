@@ -396,12 +396,6 @@ def agregar_restricciones(ls_activas):
     # R15
     # Flujo de producción
     if 15 in ls_activas:
-        i = 0
-        for b in bloques:
-            for o in Origenes:
-                for t in Dias[1:]:
-                    print(b, o, "iteracion:", i)
-                    i += 1
         model.addConstrs(
             (
                 M[b, t, o]
@@ -441,10 +435,6 @@ probar_restricciones(8, 15)
 
 # Test Domingo 21 de Mayo 20:30
 # Nada crashea hasta optimizar inclusive, pero es insatisfacible
-
-# resultados desactualizados: version anterior
-#  OK (no crashean): 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-#  NO OK (crashean): 3, 4
 
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
