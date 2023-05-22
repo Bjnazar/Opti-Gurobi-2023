@@ -432,13 +432,9 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
 # -------- Zona de prueba de restricciones ----------
 # Editar esta lista para correr el modelo con distintas restricciones activas
 
-# ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13]
-ls_activas = list(range(1, 16))
+ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12]
+# ls_activas = list(range(1, 16))
 agregar_restricciones(ls_activas)
-
-
-# Test Domingo 21 de Mayo 20:30
-# Nada crashea hasta optimizar inclusive, pero es insatisfacible
 
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
@@ -454,8 +450,12 @@ objetivo = quicksum(
 model.setObjective(objetivo, GRB.MINIMIZE)
 
 # ------------ Optimización del modelo ------------
+
+model.computeIIS()
+model.write("model.ilp")
+
 print("Optimizando...")
-model.optimize()  # Unfeasible por ahora
+# model.optimize()  # Unfeasible por ahora
 
 # ------------ Manejo de soluciones ------------
 # if model.status == GRB.OPTIMAL:
@@ -464,8 +464,8 @@ model.optimize()  # Unfeasible por ahora
 # else:
 #     print("Trata de nuevoo!")
 
-for i in range(8):
-    try:
-        print(beta[i])
-    except Exception:
-        pass 
+# for i in range(8):
+#     try:
+#         print(beta[i])
+#     except Exception:
+#         pass 
