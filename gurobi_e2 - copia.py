@@ -8,13 +8,13 @@ seed(10)
 # ------------ Construcción de los datos ------------
 
 # Constantes
-num_camiones_electricos = 4
-num_camiones_diesel = 4
+num_camiones_electricos = 2
+num_camiones_diesel = 2
 num_destinos = 3
 num_origenes = 3
 num_dias = 10
 bigM = 100**9
-J = 10
+J = 5
 
 # Construcción de los conjuntos
 Camiones = range(1, num_camiones_diesel + num_camiones_electricos + 1)  # i in I
@@ -38,8 +38,6 @@ for i in range(
     E[i] = 0
 Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
 Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
-
-
 Q = {i: randint(106, 200) for i in Camiones}  # Q_i
 Do = {o: randint(27, 643) for o in Origenes}  # Do_o
 Dd = {d: randint(27, 643) for d in Destinos}  # Dd_d
@@ -67,24 +65,8 @@ W = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="W_
 M = model.addVars(Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="M_bto")
 Y = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.BINARY, name="Y_ibto")
 Z = model.addVars(
-    Camiones, Bloques, Dias, Pedidos, Destinos, vtype=GRB.BINARY, name="Z_ibtjd"
+    Camiones, Bloques, Dias, Destinos, vtype=GRB.BINARY, name="Z_ibtd"
 )
-
-# # no se si este bien, solo una idea
-# variables_z = []
-# for d in Destinos:
-#     z = model.addVars(
-#         Camiones, Bloques, Dias, Pedidos, vtype=GRB.BINARY, name=f"Z_ibtj{d}"
-#     )
-#     variables_z.append(z)
-# Z = {
-#     (i, b, t, j, d): variables_z[d][i, b, t, j]
-#     for i in Camiones
-#     for b in Bloques
-#     for t in Dias
-#     for d in Destinos
-#     for j in Pedidos
-# }
 
 alpha = model.addVars(Camiones, Bloques, Dias, vtype=GRB.BINARY, name="alpha_ibt")
 beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
@@ -110,12 +92,12 @@ def agregar_restricciones(ls_activas):
         )
         model.addConstrs(
             (
-                bigM * (1 - Z[i, b, t, j, d]) + A[i] >= 2 * Dd[d]
+                bigM * (1 - Z[i, b, t, d]) + A[i] >= 2 * Dd[d]
                 for i in Camiones
                 for t in Dias
                 for b in Bloques
                 for d in Destinos
-                for j in Pedidos
+
             ),
             name="R1b",
         )
@@ -130,22 +112,21 @@ def agregar_restricciones(ls_activas):
                 for d in Destinos:
                     final = b1 + 2 * Bd[(i, d)]
                     if final > 48:
-                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1:]
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1:]
                     else:
-                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 : final - 1]
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1: final ]
                 for o in Origenes:
                     final = b1 + 2 * Bo[(i, o)]
                     if final > 48:
-                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1:]
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1:]
                     else:
-                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 : final - 1]
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1: final]
         model.addConstrs(
             (
-                alpha[i, b0, t] >= Z[i, b1, t, j, d]
+                alpha[i, b0, t] >= Z[i, b1, t, d]
                 for i in Camiones
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos
                 for b1 in Bloques[:-2]
                 for b0 in Bloques_para_b0_bd[(b1, i, d)]
             ),
@@ -168,12 +149,12 @@ def agregar_restricciones(ls_activas):
     if 3 in ls_activas:
         model.addConstrs(
             (
-                b + 2 * Bd[i, d] <= 48 + bigM * (1 - Z[i, b, t, j, d])
+                b + 2 * Bd[i, d] <= 48 + bigM * (1 - Z[i, b, t, d])
                 for i in Camiones
                 for d in Destinos
                 for b in Bloques
                 for t in Dias
-                for j in Pedidos
+
             ),
             name="R3a",
         )
@@ -236,7 +217,7 @@ def agregar_restricciones(ls_activas):
     # TODO: (decidir si) implementar la propuesta de cambio
     if 6 in ls_activas:
         r6_sum1 = lambda i, b, t: quicksum(
-            Z[i, b, t, j, d] for d in Destinos for j in Pedidos
+            Z[i, b, t, d] for d in Destinos
         )
         r6_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
         model.addConstrs(
@@ -290,7 +271,7 @@ def agregar_restricciones(ls_activas):
     # El costo total no debe pasarse del máximo
     if 9 in ls_activas:
         r9_sum1 = lambda i, b, t: quicksum(
-            Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
+            Z[i, b, t, d] * Dd[d] for d in Destinos 
         )
         r9_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
         r9_sum3 = lambda t, b: quicksum(
@@ -316,11 +297,11 @@ def agregar_restricciones(ls_activas):
         model.addConstrs(
             (
                 quicksum(
-                    Z[i, b, t, j, d] for i in Camiones for b in Bloques for t in Dias
+                    Z[i, b, t, d] for i in Camiones for b in Bloques for t in Dias
                 )
                 >= 1
                 for d in Destinos
-                for j in Pedidos
+
             ),
             name="R11",
         )
@@ -341,12 +322,12 @@ def agregar_restricciones(ls_activas):
 
         model.addConstrs(
             (
-                Z[i, b, t, j, d] * (b + Bd[i, d]) <= tmaxd
+                Z[i, b, t, d] * (b + Bd[i, d]) <= tmaxd
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos
+
             ),
             name="R12b",
         )
@@ -357,12 +338,12 @@ def agregar_restricciones(ls_activas):
     if 13 in ls_activas:
         model.addConstrs(
             (
-                (1 - Z[i, b, t, j, d]) >= alpha[i, b, t]
+                (1 - Z[i, b, t, d]) >= alpha[i, b, t]
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
-                for j in Pedidos
+
             ),
             name="R13a",
         )
@@ -405,6 +386,17 @@ def agregar_restricciones(ls_activas):
         )
 
     # R16
+    if 16 in ls_activas:
+        model.addConstrs(bigM*(1-Y[i, b-Bo[i,o], t, o]) <= W[i, b, t,]
+
+    ),
+    name="R16",
+)
+
+    
+    
+    
+    # R17
     # Las restricciones de la naturaleza de las variables las establece gurobi
     #  al crear las variables y definir sus respectivos tipos de datos
 
@@ -428,8 +420,10 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
         finally:
             continue
 
-
+# ---------------------------------------------------
 # -------- Zona de prueba de restricciones ----------
+# ---------------------------------------------------
+
 # Editar esta lista para correr el modelo con distintas restricciones activas
 
 ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -438,7 +432,7 @@ agregar_restricciones(ls_activas)
 
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
-    Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
+    Z[i, b, t, d] * Dd[d] for d in Destinos 
 )
 fo_sum2 = lambda t, b, i: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
 objetivo = quicksum(
@@ -451,11 +445,11 @@ model.setObjective(objetivo, GRB.MINIMIZE)
 
 # ------------ Optimización del modelo ------------
 
-model.computeIIS()
-model.write("model.ilp")
+# model.computeIIS()
+# model.write("model.ilp")
 
 print("Optimizando...")
-# model.optimize()  # Unfeasible por ahora
+model.optimize()  # Unfeasible por ahora
 
 # ------------ Manejo de soluciones ------------
 # if model.status == GRB.OPTIMAL:
