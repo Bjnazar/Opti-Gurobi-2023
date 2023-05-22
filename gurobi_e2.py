@@ -434,10 +434,6 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
 # Test Domingo 21 de Mayo 20:30
 # Nada crashea hasta optimizar inclusive, pero es insatisfacible
 
-# resultados desactualizados: version anterior
-#  OK (no crashean): 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-#  NO OK (crashean): 3, 4
-
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
     Z[i, b, t, j, d] * Dd[d] for d in Destinos for j in Pedidos
