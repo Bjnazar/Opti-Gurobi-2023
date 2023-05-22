@@ -31,13 +31,12 @@ ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 # Construcción de los parametros
 V = {i: 70 for i in Camiones}  # V_i
 A = {i: randint(150, 643) for i in Camiones}  # A_i
-
-E = {i: randint(1, 5) for i in Camiones[:num_camiones_diesel + 1]}  # E_i
-for i in range(num_camiones_diesel + 1, num_camiones_diesel + num_camiones_electricos + 1):
+E = {i: randint(1, 5) for i in Camiones[: num_camiones_diesel + 1]}  # E_i
+for i in range(
+    num_camiones_diesel + 1, num_camiones_diesel + num_camiones_electricos + 1
+):
     E[i] = 0
-
 Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
-
 Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
 
 
@@ -67,7 +66,9 @@ X = model.addVars(Camiones, Bloques, Dias, Destinos, vtype=GRB.INTEGER, name="X_
 W = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="W_ibto")
 M = model.addVars(Bloques, Dias, Origenes, vtype=GRB.INTEGER, name="M_bto")
 Y = model.addVars(Camiones, Bloques, Dias, Origenes, vtype=GRB.BINARY, name="Y_ibto")
-Z = model.addVars(Camiones, Bloques, Dias, Pedidos, Destinos, vtype=GRB.BINARY, name="Z_ibtjd")
+Z = model.addVars(
+    Camiones, Bloques, Dias, Pedidos, Destinos, vtype=GRB.BINARY, name="Z_ibtjd"
+)
 
 # # no se si este bien, solo una idea
 # variables_z = []
@@ -91,8 +92,8 @@ beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
 model.update()
 print("Variables de decisión instanciadas")
 
-# ------------ Agregar restricciones ------------
 
+# ------------ Función agregar restricciones ------------
 def agregar_restricciones(ls_activas):
     # R1
     # Autonomía (distancia max de cada recorrido)
@@ -131,13 +132,13 @@ def agregar_restricciones(ls_activas):
                     if final > 48:
                         Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1:]
                     else:
-                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1:final - 1]
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 : final - 1]
                 for o in Origenes:
                     final = b1 + 2 * Bo[(i, o)]
                     if final > 48:
                         Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1:]
                     else:
-                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1:final - 1]
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 : final - 1]
         model.addConstrs(
             (
                 alpha[i, b0, t] >= Z[i, b1, t, j, d]
@@ -167,24 +168,24 @@ def agregar_restricciones(ls_activas):
     if 3 in ls_activas:
         model.addConstrs(
             (
-                b + 2 * Bd[i,d] <= 48 + bigM * (1 - Z[i, b, t, j, d])
+                b + 2 * Bd[i, d] <= 48 + bigM * (1 - Z[i, b, t, j, d])
                 for i in Camiones
                 for d in Destinos
                 for b in Bloques
                 for t in Dias
                 for j in Pedidos
             ),
-            name="R3a"
+            name="R3a",
         )
         model.addConstrs(
             (
-                b + 2 * Bo[i,o] <= 48 + bigM * (1 - Y[i, b, t, o])
+                b + 2 * Bo[i, o] <= 48 + bigM * (1 - Y[i, b, t, o])
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
                 for o in Origenes
             ),
-            name="R3b"
+            name="R3b",
         )
 
     # R4
@@ -293,7 +294,8 @@ def agregar_restricciones(ls_activas):
         )
         r9_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
         r9_sum3 = lambda t, b: quicksum(
-            beta[i] * Cc[i] + 2 * (Ckm[i] + E[i] * Ce) * (r9_sum1(i, b, t) + r9_sum2(i, b, t))
+            beta[i] * Cc[i]
+            + 2 * (Ckm[i] + E[i] * Ce) * (r9_sum1(i, b, t) + r9_sum2(i, b, t))
             for i in Camiones
         )
         model.addConstr(
@@ -339,7 +341,7 @@ def agregar_restricciones(ls_activas):
 
         model.addConstrs(
             (
-                Z[i, b, t, j, d] * (b + Bd[i,d]) <= tmaxd
+                Z[i, b, t, j, d] * (b + Bd[i, d]) <= tmaxd
                 for i in Camiones
                 for b in Bloques
                 for t in Dias
@@ -413,6 +415,10 @@ agregar_restricciones(ls_activas)
 
 
 def probar_restricciones(r_idx_inicial, r_idx_final):
+    """
+    Esta es para probar si las restricciones tiran error o no.
+    Afortunadamente, ya hemos pasado esa etapa.
+    """
     print("Probando restricciones...")
     for ls_una_r in [[idx] for idx in range(r_idx_inicial, r_idx_final + 1)]:
         try:
@@ -425,10 +431,14 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
         ):  # Si no funciona, apretar varias veces Ctrl + C bien seguido
             os._exit()
         finally:
-           continue
+            continue
 
 
-# probar_restricciones(1, 6)
+# -------- Zona de prueba de restricciones ----------
+# Editar esta lista para correr el modelo con distintas restricciones activas
+ls_activas = list(range(1, 16))
+agregar_restricciones(ls_activas)
+
 
 # Test Domingo 21 de Mayo 20:30
 # Nada crashea hasta optimizar inclusive, pero es insatisfacible
