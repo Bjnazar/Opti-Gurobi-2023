@@ -38,8 +38,6 @@ for i in range(
     E[i] = 0
 Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
 Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
-
-
 Q = {i: randint(106, 200) for i in Camiones}  # Q_i
 Do = {o: randint(27, 643) for o in Origenes}  # Do_o
 Dd = {d: randint(27, 643) for d in Destinos}  # Dd_d
@@ -411,8 +409,10 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
         finally:
             continue
 
-
+# ---------------------------------------------------
 # -------- Zona de prueba de restricciones ----------
+# ---------------------------------------------------
+
 # Editar esta lista para correr el modelo con distintas restricciones activas
 
 ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
