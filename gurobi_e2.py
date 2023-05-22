@@ -8,13 +8,13 @@ seed(10)
 # ------------ Construcción de los datos ------------
 
 # Constantes
-num_camiones_electricos = 10
-num_camiones_diesel = 10
-num_destinos = 10
-num_origenes = 10
+num_camiones_electricos = 4
+num_camiones_diesel = 4
+num_destinos = 3
+num_origenes = 3
 num_dias = 10
 bigM = 100**9
-J = 100
+J = 50
 
 # Construcción de los conjuntos
 Camiones = range(1, num_camiones_diesel + num_camiones_electricos + 1)  # i in I
