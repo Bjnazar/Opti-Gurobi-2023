@@ -451,18 +451,18 @@ model.setObjective(objetivo, GRB.MINIMIZE)
 
 # ------------ Optimización del modelo ------------
 
-model.computeIIS()
-model.write("model.ilp")
+# Descomentar si es que el modelo es feasible
+# model.computeIIS()
+# model.write("model.ilp")
 
 print("Optimizando...")
-# model.optimize()  # Unfeasible por ahora
+model.optimize()  # Unfeasible por ahora
 
 # ------------ Manejo de soluciones ------------
-# if model.status == GRB.OPTIMAL:
-#     model.printAttr('X')
-#  # Tira error por ahora
-# else:
-#     print("Trata de nuevoo!")
+if model.status == GRB.OPTIMAL:
+     model.printAttr('X')
+else:
+     print("Trata de nuevoo!")
 
 # for i in range(8):
 #     try:
