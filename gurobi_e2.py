@@ -132,13 +132,13 @@ def agregar_restricciones(ls_activas):
                     if final > 48:
                         Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1:]
                     else:
-                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 : final - 1]
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1: final]
                 for o in Origenes:
                     final = b1 + 2 * Bo[(i, o)]
                     if final > 48:
-                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1:]
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1:]
                     else:
-                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 : final - 1]
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1: final]
         model.addConstrs(
             (
                 alpha[i, b0, t] >= Z[i, b1, t, j, d]
