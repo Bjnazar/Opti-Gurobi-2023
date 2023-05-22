@@ -431,6 +431,8 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
 # ---------------------------------------------------
 
 # Editar esta lista para correr el modelo con distintas restricciones activas
+
+# ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13]
 ls_activas = list(range(1, 16))
 agregar_restricciones(ls_activas)
 
