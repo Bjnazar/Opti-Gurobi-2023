@@ -408,11 +408,6 @@ def agregar_restricciones(ls_activas):
     # Las restricciones de la naturaleza de las variables las establece gurobi
     #  al crear las variables y definir sus respectivos tipos de datos
 
-# Editar esta lista para correr el modelo con distintas restricciones activas
-ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13]
-
-agregar_restricciones(ls_activas)
-
 
 def probar_restricciones(r_idx_inicial, r_idx_final):
     """
@@ -436,6 +431,8 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
 
 # -------- Zona de prueba de restricciones ----------
 # Editar esta lista para correr el modelo con distintas restricciones activas
+
+# ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13]
 ls_activas = list(range(1, 16))
 agregar_restricciones(ls_activas)
 
@@ -470,5 +467,5 @@ model.optimize()  # Unfeasible por ahora
 for i in range(8):
     try:
         print(beta[i])
-    else:
+    except Exception:
         pass 
