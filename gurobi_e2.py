@@ -52,8 +52,8 @@ Qmax = 10000
 Ce = 5000
 G = 5750000000000
 R = {o: randint(10, 100) for o in Origenes}  # R_o
-Bo = {(i, o): ceil(Do[o] / V[i]) for i in Camiones for o in Origenes}
-Bd = {(i, d): ceil(Dd[d] / V[i]) for i in Camiones for d in Destinos}
+Bo = {(i, o): ceil(2 * Do[o] / V[i]) for i in Camiones for o in Origenes}
+Bd = {(i, d): ceil(2 * Dd[d] / V[i]) for i in Camiones for d in Destinos}
 print("Parametros construidos")
 
 # ------------ Generar el modelo ------------
