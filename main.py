@@ -500,8 +500,10 @@ if model.status == GRB.OPTIMAL:
     for i in Camiones:
         print(beta[i])
     print("Alfas:")
-    for i in Camiones:
-        print(alpha[i])
+    for t in Dias:
+        for i in Camiones:
+            for b in Bloques:
+                print(alpha[i, b, t])
 else:
      print("Trata de nuevoo!")
 
