@@ -29,8 +29,8 @@ print("Conjuntos construidos")
 ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 
 # Construcción de los parametros
-V = {i: 70 for i in Camiones}  # V_i
-A = {i: randint(150, 643) for i in Camiones}  # A_i
+V = {i: 140 for i in Camiones}  # V_i
+A = {i: randint(300, 643) for i in Camiones}  # A_i
 E = {i: randint(1, 5) for i in Camiones[: num_camiones_diesel + 1]}  # E_i
 for i in range(
     num_camiones_diesel + 1, num_camiones_diesel + num_camiones_electricos + 1
@@ -43,15 +43,15 @@ Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
 Q = {i: randint(106, 200) for i in Camiones}  # Q_i
 Do = {o: randint(27, 643) for o in Origenes}  # Do_o
 Dd = {d: randint(27, 643) for d in Destinos}  # Dd_d
-Md = {(d, t): randint(50, 500) for d in Destinos for t in Dias}  # Md_dt
-tmaxd = 7   # TODO: Este no era distinto por cada destino? No sé, alguien más revise porfa. Milan.
-tmaxo = 10   # TODO: Este no era distinto por cada origen? No sé, alguien más revise porfa. Milan.
-Mo = {(o, t): randint(10, 100) for o in Origenes for t in Dias}  # Mo_ot
+Md = {(d, t): randint(50, 90) for d in Destinos for t in Dias}  # Md_dt
+tmaxd = 10
+tmaxo = 10 
+Mo = {(o, t): randint(50, 100) for o in Origenes for t in Dias}  # Mo_ot
 Cq = 20000
 Qmax = 10000
 Ce = 5000
 G = 575000000000
-R = {o: randint(10, 100) for o in Origenes}  # R_o
+R = {o: randint(50, 100) for o in Origenes}  # R_o
 Bo = {(i, o): ceil(Do[o] / V[i]) for i in Camiones for o in Origenes}
 Bd = {(i, d): ceil(Dd[d] / V[i]) for i in Camiones for d in Destinos}
 print("Parametros construidos")
@@ -70,22 +70,6 @@ Z = model.addVars(
     Camiones, Bloques, Dias, Destinos, vtype=GRB.BINARY, name="Z_ibtd"
 )
 
-# # no se si este bien, solo una idea
-# variables_z = []
-# for d in Destinos:
-#     z = model.addVars(
-#         Camiones, Bloques, Dias, Pedidos, vtype=GRB.BINARY, name=f"Z_ibtj{d}"
-#     )
-#     variables_z.append(z)
-# Z = {
-#     (i, b, t, j, d): variables_z[d][i, b, t, j]
-#     for i in Camiones
-#     for b in Bloques
-#     for t in Dias
-#     for d in Destinos
-#     for j in Pedidos
-# }
-
 alpha = model.addVars(Camiones, Bloques, Dias, vtype=GRB.BINARY, name="alpha_ibt")
 beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
 
@@ -98,9 +82,10 @@ def agregar_restricciones(ls_activas):
     # R1
     # Autonomía (distancia max de cada recorrido)
     if 1 in ls_activas:
+        
         model.addConstrs(
             (
-                bigM * (1 - Y[i, b, t, o]) + A[i] >= 2 * Do[o]
+                bigM * (1 - Y[i, b, t, o]) + A[i] >= Do[o]
                 for i in Camiones
                 for t in Dias
                 for b in Bloques
@@ -110,7 +95,7 @@ def agregar_restricciones(ls_activas):
         )
         model.addConstrs(
             (
-                bigM * (1 - Z[i, b, t, d]) + A[i] >= 2 * Dd[d]
+                bigM * (1 - Z[i, b, t, d]) + A[i] >= Dd[d]
                 for i in Camiones
                 for t in Dias
                 for b in Bloques
@@ -130,15 +115,15 @@ def agregar_restricciones(ls_activas):
                 for d in Destinos:
                     final = b1 + 2 * Bd[(i, d)]
                     if final > 48:
-                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1:]
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1:]
                     else:
-                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 : final - 1]
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1: final]
                 for o in Origenes:
                     final = b1 + 2 * Bo[(i, o)]
                     if final > 48:
-                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1:]
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1:]
                     else:
-                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 : final - 1]
+                        Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1: final]
         model.addConstrs(
             (
                 alpha[i, b0, t] >= Z[i, b1, t, d]
@@ -405,8 +390,65 @@ def agregar_restricciones(ls_activas):
         )
 
     # R16
-    # Las restricciones de la naturaleza de las variables las establece gurobi
-    #  al crear las variables y definir sus respectivos tipos de datos
+    # Relación 
+    if 16 in ls_activas:
+        model.addConstrs(
+            (
+                bigM*Y[i,b-Bo[i,o],t,o] >= W[i,b,t,o]
+                for i in Camiones
+                for o in Origenes
+                for t in Dias
+                for b in range(Bo[i,o]+1,48)
+            ),
+            name="R16a",
+        )
+
+        model.addConstrs(
+            (
+                Y[i,b-Bo[i,o],t,o] <= W[i,b,t,o]
+                for i in Camiones
+                for o in Origenes
+                for t in Dias
+                for b in range(Bo[i,o]+1,48)
+            ),
+            name="R16b",
+        )
+
+        model.addConstrs(
+            (
+                bigM*Z[i,b-Bd[i,d],t,d] >= X[i,b,t,d]
+                for i in Camiones
+                for d in Destinos
+                for t in Dias
+                for b in range(Bd[i,d]+1,48)
+            ),
+            name="R16c",
+        )
+
+        model.addConstrs(
+            (
+                Z[i,b-Bd[i,d],t,d] <= X[i,b,t,d]
+                for i in Camiones
+                for d in Destinos
+                for t in Dias
+                for b in range(Bd[i,d]+1,48)
+            ),
+            name="R16d",
+        )
+
+    
+    # R17 
+    # Condiciones iniciales
+    if 17 in ls_activas:
+        model.addConstrs(
+        (alpha[i, 1, t] == 0 for i in Camiones for t in Dias),
+        name="R17a",
+    )
+
+    model.addConstrs(
+        (M[1, 1, o] == R[o] for o in Origenes),
+        name="R17b",
+    )
 
 
 def probar_restricciones(r_idx_inicial, r_idx_final):
@@ -432,7 +474,7 @@ def probar_restricciones(r_idx_inicial, r_idx_final):
 # -------- Zona de prueba de restricciones ----------
 # Editar esta lista para correr el modelo con distintas restricciones activas
 
-ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+ls_activas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
 # ls_activas = list(range(1, 16))
 agregar_restricciones(ls_activas)
 
