@@ -2,19 +2,26 @@ from random import randint, seed
 import math
 import os
 from gurobipy import GRB, Model, quicksum, GurobiError
+import pandas as pd
 
 seed(10)
 
 # ------------ Construcción de los datos ------------
 
 # Constantes
-num_camiones_electricos = 4
-num_camiones_diesel = 4
-num_destinos = 3
-num_origenes = 3
+num_camiones_electricos = 20
+num_camiones_diesel = 20
+num_destinos = 10
+num_origenes = 10
 num_dias = 10
 bigM = 100**9
-# J = 10
+
+distancias1 = [0, 28, 366, 644, 101, 392, 306, 356, 171, 360, 363] #origen
+distancias2 = [0, 546, 205, 41, 559, 304, 244, 35, 80, 59, 197] #destino
+tpo_en_bloques1 = [0, 1,11,19,3,12,9,11,5,11,11] #origen
+tpo_en_bloques2 = [0, 16,6,2,16,9,7,1,3,2,6] #destino
+emisiones = [0.002064, 0.002114, 0.001994, 0.001961]
+
 
 # Construcción de los conjuntos
 Camiones = range(1, num_camiones_diesel + num_camiones_electricos + 1)  # i in I
@@ -22,7 +29,6 @@ Destinos = range(1, num_destinos + 1)  # d in D
 Origenes = range(1, num_origenes + 1)  # o in O
 Dias = range(1, num_dias + 1)  # t in T
 Bloques = range(1, 48 + 1)  # b in {1,...,48}
-# Pedidos = range(1, J + 1)
 print("Conjuntos construidos")
 
 # Utils
@@ -41,19 +47,19 @@ Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
 
 
 Q = {i: randint(106, 200) for i in Camiones}  # Q_i
-Do = {o: randint(27, 643) for o in Origenes}  # Do_o
-Dd = {d: randint(27, 643) for d in Destinos}  # Dd_d
+Do = [0, 28, 366, 644, 101, 392, 306, 356, 171, 360, 363]  # Do_o
+Dd = [0, 546, 205, 41, 559, 304, 244, 35, 80, 59, 197]  # Dd_d
 Md = {(d, t): randint(50, 90) for d in Destinos for t in Dias}  # Md_dt
 tmaxd = 10
-tmaxo = 10 
-Mo = {(o, t): randint(50, 100) for o in Origenes for t in Dias}  # Mo_ot
+# tmaxo = 10 
+Mo = {(o, t): randint(40, 60) for o in Origenes for t in Dias}  # Mo_ot
 Cq = 20000
 Qmax = 10000
 Ce = 5000
-G = 575000000000
+G = 575000000
 R = {o: randint(50, 100) for o in Origenes}  # R_o
-Bo = {(i, o): ceil(Do[o] / V[i]) for i in Camiones for o in Origenes}
-Bd = {(i, d): ceil(Dd[d] / V[i]) for i in Camiones for d in Destinos}
+Bo = {(i, o): tpo_en_bloques1[o] for o in Origenes for i in Camiones}
+Bd = {(i, d): tpo_en_bloques2[d] for d in Destinos for i in Camiones}
 print("Parametros construidos")
 
 # ------------ Generar el modelo ------------
@@ -117,7 +123,7 @@ def agregar_restricciones(ls_activas):
                     if final > 48:
                         Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1:]
                     else:
-                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1: final]
+                        Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1 : final]
                 for o in Origenes:
                     final = b1 + 2 * Bo[(i, o)]
                     if final > 48:
