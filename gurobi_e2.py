@@ -405,8 +405,52 @@ def agregar_restricciones(ls_activas):
         )
 
     # R16
-    # Las restricciones de la naturaleza de las variables las establece gurobi
-    #  al crear las variables y definir sus respectivos tipos de datos
+    if 16 in ls_activas:
+        model.addConstrs(
+            (
+                bigM*Y[i,b-Bo[i,o],t,o] >= W[i,b,t,o]
+                for i in Camiones
+                for o in Origenes
+                for t in Dias
+                for b in range(Bo[i,o]+1,48)
+            ),
+            name="R16a",
+        )
+
+        model.addConstrs(
+            (
+                Y[i,b-Bo[i,o],t,o] <= W[i,b,t,o]
+                for i in Camiones
+                for o in Origenes
+                for t in Dias
+                for b in range(Bo[i,o]+1,48)
+            ),
+            name="R16b",
+        )
+
+        model.addConstrs(
+            (
+                bigM*Z[i,b-Bd[i,d],t,j,d] >= X[i,b,t,j,d]
+                for i in Camiones
+                for d in Destinos
+                for t in Dias
+                for j in Pedidos
+                for b in range(Bd[i,d]+1,48)
+            ),
+            name="R16c",
+        )
+
+        model.addConstrs(
+            (
+                Z[i,b-Bd[i,d],t,j,d] <= X[i,b,t,j,d]
+                for i in Camiones
+                for d in Destinos
+                for t in Dias
+                for j in Pedidos
+                for b in range(Bd[i,d]+1,48)
+            ),
+            name="R16d",
+        )
 
 
 def probar_restricciones(r_idx_inicial, r_idx_final):
