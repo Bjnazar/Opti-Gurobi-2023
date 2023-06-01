@@ -122,7 +122,7 @@ def agregar_restricciones(ls_activas):
                     final = b1 + 2 * Bd[(i, d)]
                     if final > 48:
                         Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1:]
-                    else:
+                    else:  # No estoy seguro de estos indices
                         Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1 : final]
                 for o in Origenes:
                     final = b1 + 2 * Bo[(i, o)]
@@ -241,17 +241,19 @@ def agregar_restricciones(ls_activas):
         )
 
     # R7
+    # Eliminada por acuerdo de Mildred y Jorge (en base a ayudante) 31-05
+    # TODO: Renumerar el resto
     # Las demandas de madera en los destinos deben satisfacerse
-    if 7 in ls_activas:
-        model.addConstrs(
-            (
-                quicksum(X[i, b, t, d] for i in Camiones) <= Md[d, t]
-                for b in Bloques
-                for t in Dias
-                for d in Destinos
-            ),
-            name="R7",
-        )
+    # if 7 in ls_activas:
+    #     model.addConstrs(
+    #         (
+    #             quicksum(X[i, b, t, d] for i in Camiones) <= Md[d, t]
+    #             for b in Bloques
+    #             for t in Dias
+    #             for d in Destinos
+    #         ),
+    #         name="R7",
+    #     )
 
     # R8
     # Cada camión puede cargar un máximo de madera
@@ -301,8 +303,8 @@ def agregar_restricciones(ls_activas):
 
     # R11
     # Todos los pedidos deben ser despachados
-    # esta restricción esta distinta en el word, pero segun yo al convertir la
-    # sumatoria de destintos en un cuantificador afuera, no altera la restricción. Lo hice para facilitar el código.
+    if 11 in ls_activas:
+        pass
 
     # R12
     # Los pedidos deben llegar a tiempo
@@ -355,6 +357,30 @@ def agregar_restricciones(ls_activas):
                 for o in Origenes
             ),
             name="R13b",
+        )
+
+        sumc = lambda i, b, t: quicksum(alpha[i, b1, t] for b1 in Bloques[b: b + 2 * Bd[i, d]])
+        model.addConstrs(
+            (
+                2 * Bd[i, d] * Z[i, b, t, d] <= sumc(i, b, t)
+                for i in Camiones
+                for b in Bloques
+                for t in Dias
+                for d in Destinos
+            ),
+            name="R13c"
+        )
+
+        sumd = lambda i, b, t: quicksum(alpha[i, b1, t] for b1 in Bloques[b: b + 2 * Bd[i, d]])
+        model.addConstrs(
+            (
+                2 * Bo[i, o] * Z[i, b, t, o] <= sumd(i, b, t)
+                for i in Camiones
+                for b in Bloques
+                for t in Dias
+                for o in Origenes
+            ),
+            name="R13d"
         )
 
     # R14
