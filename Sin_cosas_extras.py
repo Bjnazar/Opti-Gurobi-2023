@@ -167,9 +167,10 @@ model.addConstrs(
     (
         bigM * Y[i, b - Bo[i, o], t, o] >= W[i, b, t, o]
         for i in Camiones
+        for o in Origenes
         for b in Bloques[Bo[i, o] + 1:]
         for t in Dias
-        for o in Origenes
+
     ),
     name="R3c",
 )
