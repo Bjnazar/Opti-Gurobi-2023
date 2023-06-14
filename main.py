@@ -408,10 +408,10 @@ if 13 in ls_activas:
     model.addConstrs(
         (
             M[b, t, o]
-            == R[o] + M[b, t - 1, o] - quicksum(W[i, b, t, o] for i in Camiones)
-            for b in Bloques
+            == R[o] + M[b - 1, t , o] - quicksum(W[i, b - 1, t, o] for i in Camiones)
+            for b in Bloques[1:]  # b ∈{2,…,48}
             for o in Origenes
-            for t in Dias[1:]
+            for t in Dias
         ),
         name="R13",
     )
@@ -426,6 +426,7 @@ if 14 in ls_activas:
             for o in Origenes
             for t in Dias
             for b in range(Bo[i, o] + 1, 48)
+            # Propuesta: for b in Bloques[Bo[i, o] + 1, 48]
         ),
         name="R14a",
     )
@@ -471,6 +472,7 @@ if 15 in ls_activas:
 # R16
 # Los camiones eléctricos no emiten CO2
 if 16 in ls_activas:
+    pass
     model.addConstrs(
         (E[i] == 0 for i in Camiones[N_ELECTRICOS:]), name="R16"
     )
