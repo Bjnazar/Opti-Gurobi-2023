@@ -9,11 +9,11 @@ seed(10)
 # ------------ Construcción de los datos ------------
 
 # Constantes
-num_camiones_electricos = 20
-num_camiones_diesel = 20
-num_destinos = 10
-num_origenes = 10
-num_dias = 10
+N_ELECTRICOS = 20
+N_DIESEL = 20
+N_DESTINOS = 10
+N_ORIGENES = 10
+N_DIAS = 10
 bigM = 100**9
 
 distancias1 = [0, 28, 366, 644, 101, 392, 306, 356, 171, 360, 363]  # origen
@@ -24,10 +24,10 @@ emisiones = [0.002064, 0.002114, 0.001994, 0.001961]
 
 
 # Construcción de los conjuntos
-Camiones = range(1, num_camiones_diesel + num_camiones_electricos + 1)  # i in I
-Destinos = range(1, num_destinos + 1)  # d in D
-Origenes = range(1, num_origenes + 1)  # o in O
-Dias = range(1, num_dias + 1)  # t in T
+Camiones = range(1, N_DIESEL + N_ELECTRICOS + 1)  # i in I
+Destinos = range(1, N_DESTINOS + 1)  # d in D
+Origenes = range(1, N_ORIGENES + 1)  # o in O
+Dias = range(1, N_DIAS + 1)  # t in T
 Bloques = range(1, 48 + 1)  # b in {1,...,48}
 print("Conjuntos construidos")
 
@@ -37,9 +37,9 @@ ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 # Construcción de los parametros
 V = {i: 140 for i in Camiones}  # V_i
 A = {i: randint(300, 643) for i in Camiones}  # A_i
-E = {i: randint(1, 5) for i in Camiones[: num_camiones_diesel + 1]}  # E_i
+E = {i: randint(1, 5) for i in Camiones[: N_DIESEL + 1]}  # E_i
 for i in range(
-    num_camiones_diesel + 1, num_camiones_diesel + num_camiones_electricos + 1
+    N_DIESEL + 1, N_DIESEL + N_ELECTRICOS + 1
 ):
     E[i] = 0
 Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
@@ -465,7 +465,7 @@ def agregar_restricciones(ls_activas):
     # Los camiones eléctricos no emiten CO2
     if 16 in ls_activas:
         model.addConstrs(
-            (E[i] == 0 for i in Camiones[num_camiones_electricos:]), name="R16"
+            (E[i] == 0 for i in Camiones[N_ELECTRICOS:]), name="R16"
         )
 
     # R17
