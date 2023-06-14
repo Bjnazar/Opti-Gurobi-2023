@@ -103,7 +103,6 @@ def agregar_restricciones(ls_activas):
                 for t in Dias
                 for b in Bloques
                 for d in Destinos
-                # for j in Pedidos
             ),
             name="R1b",
         )
@@ -133,7 +132,6 @@ def agregar_restricciones(ls_activas):
                 for i in Camiones
                 for t in Dias
                 for d in Destinos
-                # for j in Pedidos
                 for b1 in Bloques[:-2]
                 for b0 in Bloques_para_b0_bd[(b1, i, d)]
             ),
@@ -161,7 +159,6 @@ def agregar_restricciones(ls_activas):
                 for d in Destinos
                 for b in Bloques
                 for t in Dias
-                # for j in Pedidos
             ),
             name="R3a",
         )
@@ -324,7 +321,6 @@ def agregar_restricciones(ls_activas):
                 for b in Bloques
                 for t in Dias
                 for d in Destinos
-                # for j in Pedidos
             ),
             name="R10b",
         )
