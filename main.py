@@ -32,6 +32,7 @@ Bloques = range(1, 48 + 1)  # b in {1,...,48}
 print("Conjuntos construidos")
 
 # Utils
+# PORQUE NO USAMOS MATH.CEIL NOMAS? ESTE LE AGREGA 1 A LOS ENTEROS TB
 ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 
 # Construcción de los parametros
@@ -107,6 +108,7 @@ if 1 in ls_activas:
         ),
         name="R1b",
     )
+    print("R1 agregada")
 
 # R2
 # Relación entre alpha (camión ocupado) con Z e Y (camión parte)
@@ -149,6 +151,7 @@ if 2 in ls_activas:
         ),
         name="R2b",
     )
+    print("R2 agregada")
 
 # R3
 # Cada camión que parte debe volver el mismo día
@@ -183,6 +186,7 @@ if 3 in ls_activas:
         ),
         name="R3c",
     )
+    print("R3 agregada")
 
 # R4
 # Conservación de flujo inventario
@@ -220,6 +224,7 @@ if 4 in ls_activas:
     r4c_sum1 = quicksum(W[i, 1, 1, o] for o in Origenes for i in Camiones)
     r4c_sum2 = quicksum(X[i, 1, 1, d] for d in Destinos for i in Camiones)
     model.addConstr(U[1, 1] == r4c_sum1 - r4c_sum2, name="R4c")
+    print("R4 agregada")
 
 # R5
 # Conservación de inventario entre el último bloque de un día y
@@ -231,6 +236,7 @@ if 5 in ls_activas:
         (Z[i, 1, t, d] == 0 for d in Destinos for i in Camiones for t in Dias),
         name="R5b",
     )
+    print("R5 agregada")
 
 # R6
 # Cada camión puede estar asignado máximo en cada bloque de tiempo en un día
@@ -248,6 +254,7 @@ if 6 in ls_activas:
         ),
         name="R6",
     )
+    print("R6 agregada")
 
 # Ra7
 # Eliminada por acuerdo de Mildred y Jorge (en base a ayudante) 31-05
@@ -287,6 +294,7 @@ if 7 in ls_activas:
         ),
         name="R7b",
     )
+    print("R7 agregada")
 
 # R8
 # El costo total no debe pasarse del máximo
@@ -304,11 +312,13 @@ if 8 in ls_activas:
         quicksum(U[b, t] * Cq + r8_sum3(t, b) for t in Dias for b in Bloques) <= G,
         name="R8",
     )
+    print("R8 agregada")
 
 # R9
 # Los almacenes de madera de la casa matriz tienen una capacidad máxima
 if 9 in ls_activas:
     model.addConstrs((U[b, t] <= Qmax for b in Bloques for t in Dias), name="R9")
+    print("R9 agregada")
 
 # R10
 # Los pedidos deben llegar a tiempo
@@ -335,6 +345,7 @@ if 10 in ls_activas:
         ),
         name="R10b",
     )
+    print("R10 agregada")
 
 # R11
 # Relación de las variables con alfa
@@ -389,6 +400,7 @@ if 11 in ls_activas:
         ),
         name="R11d",
     )
+    print("R11 agregada")
 
 # R12
 # Relación entre alfa y beta
@@ -401,6 +413,7 @@ if 12 in ls_activas:
         ),
         name="R12",
     )
+    print("R12 agregada")
 
 # R13
 # Flujo de producción
@@ -415,6 +428,7 @@ if 13 in ls_activas:
         ),
         name="R13",
     )
+    print("R13 agregada")
 
 # R14
 # Relación carga con inicio del viaje
@@ -463,11 +477,13 @@ if 14 in ls_activas:
         ),
         name="R14d",
     )
+    print("R14 agregada")
 
 # R15
 # La cantidad de madera ofrecida por cada origen en el primer bloque de cada dia es su tasa de producción diaria
 if 15 in ls_activas:
     model.addConstrs((M[0, 0, o] == R[o] for o in Origenes), name="R15")
+    print("R15 agregada")
 
 # R16
 # Los camiones eléctricos no emiten CO2
@@ -476,6 +492,7 @@ if 16 in ls_activas:
     model.addConstrs(
         (E[i] == 0 for i in Camiones[N_ELECTRICOS:]), name="R16"
     )
+    print("R16 agregada")
 
 # R17
 # Los camiones parten desocupados el primer bloque de cada dia
@@ -484,6 +501,7 @@ if 17 in ls_activas:
         (alpha[i, 0, t] == 0 for i in Camiones for t in Dias),
         name="R17a",
     )
+    print("R17 agregada")
 
 
 # ------------ Función objetivo ------------
