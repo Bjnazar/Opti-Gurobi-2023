@@ -443,4 +443,10 @@ model.setObjective(objetivo, GRB.MINIMIZE)
 
 print("Optimizando...")
 model.optimize()
+
+for i in range(model.SolCount):
+    model.Params.SolutionNumber = i
+    model.write(f"{i}.sol")
+
 model.printAttr("X")
+
