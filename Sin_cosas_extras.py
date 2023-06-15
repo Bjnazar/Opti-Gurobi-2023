@@ -417,12 +417,12 @@ model.addConstrs(
 print("R14 agregada")
 
 
-model.addConstrs((M[0, 0, o] == R[o] for o in Origenes), name="R15")
+model.addConstrs((M[1, 1, o] == R[o] for o in Origenes), name="R15")
 print("R15 agregada")
 
 
 model.addConstrs(
-    (alpha[i, 0, t] == 0 for i in Camiones for t in Dias),
+    (alpha[i, 1, t] == 0 for i in Camiones for t in Dias),
     name="R17a",
 )
 print("R17 agregada")
