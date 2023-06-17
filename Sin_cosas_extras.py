@@ -9,18 +9,25 @@ seed(10)
 # ------------ Construcción de los datos ------------
 
 # Constantes
-N_ELECTRICOS = 20
-N_DIESEL = 20
-N_DESTINOS = 10
-N_ORIGENES = 10
-N_DIAS = 10
+N_ELECTRICOS = 5
+N_DIESEL = 5
+N_DESTINOS = 3
+N_ORIGENES = 3
+N_DIAS = 5
 bigM = 100**9
 
+
+# COMENTARIO BERNI: NUNCA ESTAMOS USANDO ESTAS DISTANCIAS DIRECTAMENTE
 distancias1 = [0, 28, 366, 644, 101, 392, 306, 356, 171, 360, 363]  # origen
 distancias2 = [0, 546, 205, 41, 559, 304, 244, 35, 80, 59, 197]  # destino
 tpo_en_bloques1 = [0, 1, 11, 19, 3, 12, 9, 11, 5, 11, 11]  # origen
 tpo_en_bloques2 = [0, 16, 6, 2, 16, 9, 7, 1, 3, 2, 6]  # destino
-emisiones = [0.002064, 0.002114, 0.001994, 0.001961]
+# emisiones = [0.002064, 0.002114, 0.001994, 0.001961]
+
+emisiones = [0.002064, 0.002114, 0.001994, 0.001961,  0.001961, 0 , 0 , 0 , 0 , 0]
+autonomias = [370, 650, 300, 200, 400, 370, 400, 300, 644, 200]
+bloques_origenes = [11, 19, 3]
+bloques_destinos = [6, 2, 7]
 
 
 # Construcción de los conjuntos
@@ -31,36 +38,46 @@ Dias = range(1, N_DIAS + 1)  # t in T
 Bloques = range(1, 48 + 1)  # b in {1,...,48}
 print("Conjuntos construidos")
 
-# Utils
-# PORQUE NO USAMOS MATH.CEIL NOMAS? ESTE LE AGREGA 1 A LOS ENTEROS TB
-ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 
 # Construcción de los parametros
-V = {i: 140 for i in Camiones}  # V_i
-A = {i: randint(300, 643) for i in Camiones}  # A_i
-E = {i: randint(1, 5) for i in Camiones[: N_DIESEL + 1]}  # E_i
-for i in range(
-    N_DIESEL + 1, N_DIESEL + N_ELECTRICOS + 1
-):
-    E[i] = 0
-Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
-Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
+# V = {i: 140 for i in Camiones}  # V_i
+# # A = {i: randint(300, 643) for i in Camiones}  # A_i ESTÁN MALAS
+# A = {i: 50000 for i in Camiones}
 
+# E = {i: randint(1, 5) for i in Camiones[: N_DIESEL + 1]}  # E_i
+# for i in range(
+#     N_DIESEL + 1, N_DIESEL + N_ELECTRICOS + 1
+# ):
+#     E[i] = 0
 
-Q = {i: randint(106, 200) for i in Camiones}  # Q_i
-Do = [0, 28, 366, 644, 101, 392, 306, 356, 171, 360, 363]  # Do_o
-Dd = [0, 546, 205, 41, 559, 304, 244, 35, 80, 59, 197]  # Dd_d
-Md = {(d, t): randint(50, 90) for d in Destinos for t in Dias}  # Md_dt
+# Ckm = {i: randint(112, 225) for i in Camiones}  # Ckm_i
+# Cc = {i: randint(84440000, 277197590) for i in Camiones}  # Cc_i para los diesel
+# Q = {i: randint(106, 200) for i in Camiones}  # Q_i
+# Do = [0, 28, 366, 644, 101, 392, 306, 356, 171, 360, 363]  # Do_o
+# Dd = [0, 546, 205, 41, 559, 304, 244, 35, 80, 59, 197]  # Dd_d
+# Md = {(d, t): randint(50, 90) for d in Destinos for t in Dias}  # Md_dt
 tmaxd = 10
-# tmaxo = 10
-Mo = {(o, t): randint(40, 60) for o in Origenes for t in Dias}  # Mo_ot
 Cq = 20000
 Qmax = 10000
 Ce = 5000
-G = 4760000000  #Ajustar números
-R = {o: randint(50, 100) for o in Origenes}  # R_o
-Bo = {(i, o): tpo_en_bloques1[o] for o in Origenes for i in Camiones}
-Bd = {(i, d): tpo_en_bloques2[d] for d in Destinos for i in Camiones}
+G = 47600000000  #Ajustar números
+# R = {o: randint(50, 100) for o in Origenes}  # R_o
+# Bo = {(i, o): tpo_en_bloques1[o] for o in Origenes for i in Camiones}
+# Bd = {(i, d): tpo_en_bloques2[d] for d in Destinos for i in Camiones}
+
+
+A = dict(zip(list(Camiones), autonomias))
+E = dict(zip(list(Camiones), emisiones))
+Ckm = {1: 217, 2: 168, 3: 147, 4: 211, 5: 152, 6: 166, 7: 130, 8: 117, 9: 122, 10: 124}
+Cc = {1: 132430027, 2: 265728443, 3: 198450268, 4: 234935954, 5: 98161793, 6: 88914862, 7: 270097160, 8: 119208589, 9: 267390289, 10: 251585921}
+Do = [366, 644, 101]
+Dd = [205, 41, 244]
+Md = {(1, 1): 63, (1, 2): 70, (1, 3): 65, (1, 4): 69, (1, 5): 57, (2, 1): 76, (2, 2): 58, (2, 3): 69, (2, 4): 82, (2, 5): 53, (3, 1): 51, (3, 2): 76, (3, 3): 66, (3, 4): 69, (3, 5): 85}
+Q = {1: 171, 2: 168, 3: 144, 4: 123, 5: 139, 6: 138, 7: 200, 8: 124, 9: 117, 10: 173}
+R = {1: 50, 2: 120, 3: 20}  # el origen que está más cerca ofrece menos
+Bo = {(i, o):bloques_origenes[o - 1] for o in Origenes for i in Camiones}
+Bd = {(i, d): bloques_destinos[d - 1] for d in Destinos for i in Camiones}
+
 print("Parametros construidos")
 
 # ------------ Generar el modelo ------------
@@ -83,7 +100,7 @@ print("Variables de decisión instanciadas")
 
 model.addConstrs(
         (
-            bigM * (1 - Y[i, b, t, o]) + A[i] >= Do[o]
+            bigM * (1 - Y[i, b, t, o]) + A[i] >= Do[o - 1]  # ojo porque la posicion de la lista va desde el 0
             for i in Camiones
             for t in Dias
             for b in Bloques
@@ -93,7 +110,7 @@ model.addConstrs(
     )
 model.addConstrs(
     (
-        bigM * (1 - Z[i, b, t, d]) + A[i] >= Dd[d]
+        bigM * (1 - Z[i, b, t, d]) + A[i] >= Dd[d - 1]
         for i in Camiones
         for t in Dias
         for b in Bloques
@@ -260,9 +277,9 @@ print("R7 agregada")
 
 
 r8_sum1 = lambda i, b, t: quicksum(
-    Z[i, b, t, d] * Dd[d] for d in Destinos  # for j in Pedidos
+    Z[i, b, t, d] * Dd[d - 1] for d in Destinos  # for j in Pedidos
 )
-r8_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
+r8_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o - 1] for o in Origenes)
 r8_sum3 = lambda t, b: quicksum(
     beta[i] * Cc[i]
     + 2 * (Ckm[i] + E[i] * Ce) * (r8_sum1(i, b, t) + r8_sum2(i, b, t))
@@ -414,6 +431,34 @@ model.addConstrs(
     ),
     name="R14d",
 )
+
+model.addConstrs(
+    (
+        W[i, b2, t, o] <= bigM * (1 - Y[i, b1, t, o])
+        for i in Camiones
+        for t in Dias
+        for o in Origenes
+        for b1 in range(1, 48 - 2 * Bo[i, o])
+        for b2 in range(b1, b1 + Bo[i, o])
+
+    ),
+    name="R14e"
+)
+
+model.addConstrs(
+    (
+        X[i, b2, t, d] <= bigM * (1 - Z[i, b1, t, d])
+        for i in Camiones
+        for t in Dias
+        for d in Destinos
+        for b1 in range(1, 48 - 2 * Bd[i, d])
+        for b2 in range(b1, b1 + Bd[i, d])
+
+    ),
+    name="R14f"
+)
+
+
 print("R14 agregada")
 
 
@@ -430,9 +475,9 @@ print("R17 agregada")
 
 # ------------ Función objetivo ------------
 fo_sum1 = lambda t, b, i: quicksum(
-    Z[i, b, t, d] * Dd[d] for d in Destinos  # for j in Pedidos
+    Z[i, b, t, d] * Dd[d - 1] for d in Destinos  # for j in Pedidos
 )
-fo_sum2 = lambda t, b, i: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
+fo_sum2 = lambda t, b, i: quicksum(Y[i, b, t, o] * Do[o - 1] for o in Origenes)
 objetivo = quicksum(
     2 * E[i] * (fo_sum1(t, b, i) + fo_sum2(t, b, i))
     for t in Dias
