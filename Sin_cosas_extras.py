@@ -40,7 +40,7 @@ print("Conjuntos construidos")
 
 
 # Construcción de los parametros
-# V = {i: 140 for i in Camiones}  # V_i
+V = {i: 140 for i in Camiones}  # V_i
 # # A = {i: randint(300, 643) for i in Camiones}  # A_i ESTÁN MALAS
 # A = {i: 50000 for i in Camiones}
 
@@ -432,31 +432,31 @@ model.addConstrs(
     name="R14d",
 )
 
-model.addConstrs(
-    (
-        W[i, b2, t, o] <= bigM * (1 - Y[i, b1, t, o])
-        for i in Camiones
-        for t in Dias
-        for o in Origenes
-        for b1 in range(1, 48 - 2 * Bo[i, o])
-        for b2 in range(b1, b1 + Bo[i, o])
+# model.addConstrs(
+#     (
+#         W[i, b2, t, o] <= bigM * (1 - Y[i, b1, t, o])
+#         for i in Camiones
+#         for t in Dias
+#         for o in Origenes
+#         for b1 in range(1, 48 - 2 * Bo[i, o])
+#         for b2 in range(b1, b1 + Bo[i, o])
 
-    ),
-    name="R14e"
-)
+#     ),
+#     name="R14e"
+# )
 
-model.addConstrs(
-    (
-        X[i, b2, t, d] <= bigM * (1 - Z[i, b1, t, d])
-        for i in Camiones
-        for t in Dias
-        for d in Destinos
-        for b1 in range(1, 48 - 2 * Bd[i, d])
-        for b2 in range(b1, b1 + Bd[i, d])
+# model.addConstrs(
+#     (
+#         X[i, b2, t, d] <= bigM * (1 - Z[i, b1, t, d])
+#         for i in Camiones
+#         for t in Dias
+#         for d in Destinos
+#         for b1 in range(1, 48 - 2 * Bd[i, d])
+#         for b2 in range(b1, b1 + Bd[i, d])
 
-    ),
-    name="R14f"
-)
+#     ),
+#     name="R14f"
+# )
 
 
 print("R14 agregada")
