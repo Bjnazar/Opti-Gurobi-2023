@@ -74,7 +74,7 @@ Do = [366, 644, 101]
 Dd = [205, 41, 244]
 Md = {(1, 1): 63, (1, 2): 70, (1, 3): 65, (1, 4): 69, (1, 5): 57, (2, 1): 76, (2, 2): 58, (2, 3): 69, (2, 4): 82, (2, 5): 53, (3, 1): 51, (3, 2): 76, (3, 3): 66, (3, 4): 69, (3, 5): 85}
 Q = {1: 171, 2: 168, 3: 144, 4: 123, 5: 139, 6: 138, 7: 200, 8: 124, 9: 117, 10: 173}
-R = {1: 50, 2: 120, 3: 20}  # el origen que está más cerca ofrece menos
+R = {1: 6, 2: 12, 3: 3}  # el origen que está más cerca ofrece menos
 Bo = {(i, o):bloques_origenes[o - 1] for o in Origenes for i in Camiones}
 Bd = {(i, d): bloques_destinos[d - 1] for d in Destinos for i in Camiones}
 
@@ -339,9 +339,9 @@ model.addConstrs(
     (
         2 * Bd[i, d] * Z[i, b, t, d] <= sumc(i, b, t)
         for i in Camiones
-        for b in Bloques
         for t in Dias
         for d in Destinos
+        for b in range(1,(48-2*Bd[i,d]))
     ),
     name="R11c",
 )
@@ -353,9 +353,9 @@ model.addConstrs(
     (
         2 * Bo[i, o] * Z[i, b, t, o] <= sumd(i, b, t)
         for i in Camiones
-        for b in Bloques
         for t in Dias
-        for o in Origenes
+        for d in Destinos
+        for b in range(1,(48-2*Bo[i,o]))
     ),
     name="R11d",
 )
@@ -432,31 +432,52 @@ model.addConstrs(
     name="R14d",
 )
 
-# model.addConstrs(
-#     (
-#         W[i, b2, t, o] <= bigM * (1 - Y[i, b1, t, o])
-#         for i in Camiones
-#         for t in Dias
-#         for o in Origenes
-#         for b1 in range(1, 48 - 2 * Bo[i, o])
-#         for b2 in range(b1, b1 + Bo[i, o])
+model.addConstrs(
+    (
+        bigM * alpha[i, b, t] >= W[i, b, t, o] 
+        for i in Camiones 
+        for t in Dias 
+        for b in Bloques 
+        for o in Origenes),
+    name="Rj1"
+    )
 
-#     ),
-#     name="R14e"
-# )
+model.addConstrs(
+    (
+        bigM * alpha[i, b, t] >= X[i, b, t, d] 
+        for i in Camiones 
+        for t in Dias 
+        for b in Bloques 
+        for d in Destinos
+        ),
+    name="Rj2"
+    )
 
-# model.addConstrs(
-#     (
-#         X[i, b2, t, d] <= bigM * (1 - Z[i, b1, t, d])
-#         for i in Camiones
-#         for t in Dias
-#         for d in Destinos
-#         for b1 in range(1, 48 - 2 * Bd[i, d])
-#         for b2 in range(b1, b1 + Bd[i, d])
+"""model.addConstrs(
+    (
+        W[i, b2, t, o] <= bigM * (1 - Y[i, b1, t, o])
+        for i in Camiones
+        for t in Dias
+        for o in Origenes
+        for b1 in range(1, 48 - 2 * Bo[i, o])
+        for b2 in range(b1, b1 + Bo[i, o])
 
-#     ),
-#     name="R14f"
-# )
+    ),
+    name="R14e"
+)
+
+model.addConstrs(
+    (
+        X[i, b2, t, d] <= bigM * (1 - Z[i, b1, t, d])
+        for i in Camiones
+        for t in Dias
+        for d in Destinos
+        for b1 in range(1, 48 - 2 * Bd[i, d])
+        for b2 in range(b1, b1 + Bd[i, d])
+
+    ),
+    name="R14f"
+)"""
 
 
 print("R14 agregada")
