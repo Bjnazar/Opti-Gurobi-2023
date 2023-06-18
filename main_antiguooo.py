@@ -37,6 +37,7 @@ Bloques = range(1, 48 + 1)  # b in {1,...,48}
 
 
 # Utils
+# PORQUE NO USAMOS MATH.CEIL NOMAS? ESTE LE AGREGA 1 A LOS ENTEROS TB
 ceil = lambda a: int(a + 1)  # int() trunca floats a la unidad
 
 # Construcción de los parametros
@@ -85,6 +86,7 @@ beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
 model.update()
 
 
+<<<<<<< HEAD
 
 model.addConstrs(
     (
@@ -182,6 +184,108 @@ model.addConstrs(
     ),
     name="R3c",
 )
+=======
+if 1 in ls_activas:
+    model.addConstrs(
+        (
+            bigM * (1 - Y[i, b, t, o]) + A[i] >= Do[o]
+            for i in Camiones
+            for t in Dias
+            for b in Bloques
+            for o in Origenes
+        ),
+        name="R1a",
+    )
+    model.addConstrs(
+        (
+            bigM * (1 - Z[i, b, t, d]) + A[i] >= Dd[d]
+            for i in Camiones
+            for t in Dias
+            for b in Bloques
+            for d in Destinos
+        ),
+        name="R1b",
+    )
+    print("R1 agregada")
+
+# R2
+# Relación entre alpha (camión ocupado) con Z e Y (camión parte)
+if 2 in ls_activas:
+    Bloques_para_b0_bd = {}
+    Bloques_para_b0_bo = {}
+    for i in Camiones:
+        for b1 in Bloques[:-2]:
+            for d in Destinos:
+                final = b1 + 2 * Bd[(i, d)]
+                if final > 48:
+                    Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1 :]
+                else:  # No estoy seguro de estos indices
+                    Bloques_para_b0_bd[(b1, i, d)] = Bloques[b1 + 1 : final]
+            for o in Origenes:
+                final = b1 + 2 * Bo[(i, o)]
+                if final > 48:
+                    Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1 :]
+                else:
+                    Bloques_para_b0_bo[(b1, i, o)] = Bloques[b1 + 1 : final]
+    model.addConstrs(
+        (
+            alpha[i, b0, t] >= Z[i, b1, t, d]
+            for i in Camiones
+            for t in Dias
+            for d in Destinos
+            for b1 in Bloques[:-2]
+            for b0 in Bloques_para_b0_bd[(b1, i, d)]
+        ),
+        name="R2a",
+    )
+    model.addConstrs(
+        (
+            alpha[i, b0, t] >= Y[i, b1, t, o]
+            for i in Camiones
+            for t in Dias
+            for o in Origenes
+            for b1 in Bloques[:-2]
+            for b0 in Bloques_para_b0_bo[(b1, i, o)]
+        ),
+        name="R2b",
+    )
+    print("R2 agregada")
+
+# R3
+# Cada camión que parte debe volver el mismo día
+if 3 in ls_activas:
+    model.addConstrs(
+        (
+            b + 2 * Bd[i, d] <= 48 + bigM * (1 - Z[i, b, t, d])
+            for i in Camiones
+            for d in Destinos
+            for b in Bloques
+            for t in Dias
+        ),
+        name="R3a",
+    )
+    model.addConstrs(
+        (
+            b + 2 * Bo[i, o] <= 48 + bigM * (1 - Y[i, b, t, o])
+            for i in Camiones
+            for b in Bloques
+            for t in Dias
+            for o in Origenes
+        ),
+        name="R3b",
+    )
+    model.addConstrs(
+        (
+            bigM * Y[i, b - Bo[i, o], t, o] >= W[i, b, t, o]
+            for i in Camiones
+            for b in Bloques[Bo[i, o] + 1:]
+            for t in Dias
+            for o in Origenes
+        ),
+        name="R3c",
+    )
+    print("R3 agregada")
+>>>>>>> e166313300dcd11b57a63de6f84cca301c51fc72
 
 # R4
 # Conservación de flujo inventario
@@ -199,6 +303,7 @@ model.addConstrs(
     name="R4a",
 )
 
+<<<<<<< HEAD
 Camiones_r4b_bo = lambda b, o: [i for i in Camiones if b > Bo[(i, o)]]
 Camiones_r4b_bd = lambda b, d: [i for i in Camiones if b > Bd[(i, d)]]
 r4b_sum1 = lambda b, t: quicksum(
@@ -219,10 +324,17 @@ model.addConstrs(
 r4c_sum1 = quicksum(W[i, 1, 1, o] for o in Origenes for i in Camiones)
 r4c_sum2 = quicksum(X[i, 1, 1, d] for d in Destinos for i in Camiones)
 model.addConstr(U[1, 1] == r4c_sum1 - r4c_sum2, name="R4c")
+=======
+    r4c_sum1 = quicksum(W[i, 1, 1, o] for o in Origenes for i in Camiones)
+    r4c_sum2 = quicksum(X[i, 1, 1, d] for d in Destinos for i in Camiones)
+    model.addConstr(U[1, 1] == r4c_sum1 - r4c_sum2, name="R4c")
+    print("R4 agregada")
+>>>>>>> e166313300dcd11b57a63de6f84cca301c51fc72
 
 # R5
 # Conservación de inventario entre el último bloque de un día y
 ## el primer bloque del día siguiente
+<<<<<<< HEAD
 
 model.addConstrs((U[48, t - 1] == U[1, t] for t in Dias[1:]), name="R5a")
 # No se realizan despachos de pedidos en el primer bloque
@@ -233,6 +345,34 @@ model.addConstrs(
 
 # R6
 # Cada camión puede estar asignado máximo en cada bloque de tiempo en un día
+=======
+if 5 in ls_activas:
+    model.addConstrs((U[48, t - 1] == U[1, t] for t in Dias[1:]), name="R5a")
+    # No se realizan despachos de pedidos en el primer bloque
+    model.addConstrs(
+        (Z[i, 1, t, d] == 0 for d in Destinos for i in Camiones for t in Dias),
+        name="R5b",
+    )
+    print("R5 agregada")
+
+# R6
+# Cada camión puede estar asignado máximo en cada bloque de tiempo en un día
+if 6 in ls_activas:
+    r6_sum1 = lambda i, b, t: quicksum(
+        Z[i, b, t, d] for d in Destinos  # for j in Pedidos
+    )
+    r6_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
+    model.addConstrs(
+        (
+            alpha[i, b, t] + r6_sum1(i, b, t) + r6_sum2(i, b, t) <= 1
+            for i in Camiones
+            for b in Bloques
+            for t in Dias
+        ),
+        name="R6",
+    )
+    print("R6 agregada")
+>>>>>>> e166313300dcd11b57a63de6f84cca301c51fc72
 
 r6_sum1 = lambda i, b, t: quicksum(
     Z[i, b, t, d] for d in Destinos  # for j in Pedidos
@@ -250,6 +390,7 @@ model.addConstrs(
 
 # R7
 # Cada camión puede cargar un máximo de madera
+<<<<<<< HEAD
 
 model.addConstrs(
     (
@@ -305,6 +446,81 @@ model.addConstrs(
     ),
     name="R10b",
 )
+=======
+if 7 in ls_activas:
+    model.addConstrs(
+        (
+            X[i, b, t, d] <= Q[i]
+            for i in Camiones
+            for b in Bloques
+            for t in Dias
+            for d in Destinos
+        ),
+        name="R7a",
+    )
+    model.addConstrs(
+        (
+            W[i, b, t, o] <= Q[i]
+            for i in Camiones
+            for t in Dias
+            for b in Bloques
+            for o in Origenes
+        ),
+        name="R7b",
+    )
+    print("R7 agregada")
+
+# R8
+# El costo total no debe pasarse del máximo
+if 8 in ls_activas:
+    r8_sum1 = lambda i, b, t: quicksum(
+        Z[i, b, t, d] * Dd[d] for d in Destinos  # for j in Pedidos
+    )
+    r8_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o] for o in Origenes)
+    r8_sum3 = lambda t, b: quicksum(
+        beta[i] * Cc[i]
+        + 2 * (Ckm[i] + E[i] * Ce) * (r8_sum1(i, b, t) + r8_sum2(i, b, t))
+        for i in Camiones
+    )
+    model.addConstr(
+        quicksum(U[b, t] * Cq + r8_sum3(t, b) for t in Dias for b in Bloques) <= G,
+        name="R8",
+    )
+    print("R8 agregada")
+
+# R9
+# Los almacenes de madera de la casa matriz tienen una capacidad máxima
+if 9 in ls_activas:
+    model.addConstrs((U[b, t] <= Qmax for b in Bloques for t in Dias), name="R9")
+    print("R9 agregada")
+
+# R10
+# Los pedidos deben llegar a tiempo
+if 10 in ls_activas:
+    # TODO: reactivar
+    # model.addConstrs(
+    #     (
+    #         Y[i, b, t, o] * (b + Bo[i,o]) <= tmaxo
+    #         for i in Camiones
+    #         for b in Bloques
+    #         for t in Dias
+    #         for o in Origenes
+    #     ),
+    #     name="R10a",
+    # )
+
+    model.addConstrs(
+        (
+            Z[i, b, t, d] * (b + Bd[i, d]) <= tmaxd
+            for i in Camiones
+            for b in Bloques
+            for t in Dias
+            for d in Destinos
+        ),
+        name="R10b",
+    )
+    print("R10 agregada")
+>>>>>>> e166313300dcd11b57a63de6f84cca301c51fc72
 
 # R11
 # Relación de las variables con alfa
@@ -344,6 +560,7 @@ model.addConstrs(
     name="R11c",
 )
 
+<<<<<<< HEAD
 sumd = lambda i, b, t: quicksum(
     alpha[i, b1, t] for b1 in Bloques[b : b + 2 * Bd[i, d]]
 )
@@ -383,6 +600,50 @@ model.addConstrs(
     ),
     name="R13",
 )
+=======
+    sumd = lambda i, b, t: quicksum(
+        alpha[i, b1, t] for b1 in Bloques[b : b + 2 * Bd[i, d]]
+    )
+    model.addConstrs(
+        (
+            2 * Bo[i, o] * Z[i, b, t, o] <= sumd(i, b, t)
+            for i in Camiones
+            for b in Bloques
+            for t in Dias
+            for o in Origenes
+        ),
+        name="R11d",
+    )
+    print("R11 agregada")
+
+# R12
+# Relación entre alfa y beta
+if 12 in ls_activas:
+    model.addConstrs(
+        (
+            quicksum(alpha[i, b, t] for b in Bloques for t in Dias)
+            <= bigM * beta[i]
+            for i in Camiones
+        ),
+        name="R12",
+    )
+    print("R12 agregada")
+
+# R13
+# Flujo de producción
+if 13 in ls_activas:
+    model.addConstrs(
+        (
+            M[b, t, o]
+            == R[o] + M[b - 1, t , o] - quicksum(W[i, b - 1, t, o] for i in Camiones)
+            for b in Bloques[1:]  # b ∈{2,…,48}
+            for o in Origenes
+            for t in Dias
+        ),
+        name="R13",
+    )
+    print("R13 agregada")
+>>>>>>> e166313300dcd11b57a63de6f84cca301c51fc72
 
 # R14
 # Relación carga con inicio del viaje
@@ -410,6 +671,7 @@ model.addConstrs(
     name="R14b",
 )
 
+<<<<<<< HEAD
 model.addConstrs(
     (
         bigM * Z[i, b - Bd[i, d], t, d] >= X[i, b, t, d]
@@ -451,6 +713,43 @@ model.addConstrs(
     (alpha[i, 1, t] == 0 for i in Camiones for t in Dias),
     name="R17a",
 )
+=======
+    model.addConstrs(
+        (
+            Z[i, b - Bd[i, d], t, d] <= X[i, b, t, d]
+            for i in Camiones
+            for d in Destinos
+            for t in Dias
+            for b in range(Bd[i, d] + 1, 48)
+        ),
+        name="R14d",
+    )
+    print("R14 agregada")
+
+# R15
+# La cantidad de madera ofrecida por cada origen en el primer bloque de cada dia es su tasa de producción diaria
+if 15 in ls_activas:
+    model.addConstrs((M[0, 0, o] == R[o] for o in Origenes), name="R15")
+    print("R15 agregada")
+
+# R16
+# Los camiones eléctricos no emiten CO2
+if 16 in ls_activas:
+    pass
+    model.addConstrs(
+        (E[i] == 0 for i in Camiones[N_ELECTRICOS:]), name="R16"
+    )
+    print("R16 agregada")
+
+# R17
+# Los camiones parten desocupados el primer bloque de cada dia
+if 17 in ls_activas:
+    model.addConstrs(
+        (alpha[i, 0, t] == 0 for i in Camiones for t in Dias),
+        name="R17a",
+    )
+    print("R17 agregada")
+>>>>>>> e166313300dcd11b57a63de6f84cca301c51fc72
 
 
 # ------------ Función objetivo ------------
