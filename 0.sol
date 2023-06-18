@@ -1,4 +1,4 @@
-# Solution for model Entrega 2 Proyecto
+# Solution for model Entrega Proyecto
 # Objective value = 0
 U_bt[1,1] 0
 U_bt[1,2] 0

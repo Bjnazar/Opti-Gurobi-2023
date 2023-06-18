@@ -1,4 +1,4 @@
-# Solution for model Entrega 2 Proyecto
+# Solution for model Entrega Proyecto
 # Objective value = 6.1183200000000006e+00
 U_bt[1,1] 0
 U_bt[1,2] 0
