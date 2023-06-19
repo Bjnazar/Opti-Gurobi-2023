@@ -1,8 +1,28 @@
 from gurobipy import GRB, Model, quicksum, GurobiError
-from datos import N_ELECTRICOS, N_DIESEL, N_DESTINOS, N_ORIGENES, N_DIAS, bigM,\
-                distancias1, distancias2, tpo_en_bloques1, tpo_en_bloques2, emisiones, autonomias, \
-                precios, costos_km, capacidades, bloques_origenes, bloques_destinos, tmaxd, Cq, \
-                    Qmax, Ce, G
+from datos import (
+    N_ELECTRICOS,
+    N_DIESEL,
+    N_DESTINOS,
+    N_ORIGENES,
+    N_DIAS,
+    bigM,
+    distancias1,
+    distancias2,
+    tpo_en_bloques1,
+    tpo_en_bloques2,
+    emisiones,
+    autonomias,
+    precios,
+    costos_km,
+    capacidades,
+    bloques_origenes,
+    bloques_destinos,
+    tmaxd,
+    Cq,
+    Qmax,
+    Ce,
+    G,
+)
 
 
 # Construcción de los conjuntos
@@ -19,19 +39,88 @@ E = dict(zip(list(Camiones), emisiones))
 Ckm = dict(zip(list(Camiones), costos_km))
 Cc = dict(zip(list(Camiones), precios))
 Q = dict(zip(list(Camiones), capacidades))
-Do = [28, 366, 644, 101, 392, 306, 356, 171, 360, 363]  # distancias a los origenes en km
+Do = [
+    28,
+    366,
+    644,
+    101,
+    392,
+    306,
+    356,
+    171,
+    360,
+    363,
+]  # distancias a los origenes en km
+
 Dd = [546, 205, 41, 559, 304, 244, 35, 80, 59, 197]  # distancias a los destinos en km
+
 Md = {
-    (1, 1): 53, (1, 2): 54, (1, 3): 78, (1, 4): 52, (1, 5): 59, (2, 1): 81, (2, 2): 76, (2, 3): 63,
-    (2, 4): 80, (2, 5): 56, (3, 1): 54, (3, 2): 70, (3, 3): 53, (3, 4): 57, (3, 5): 77, (4, 1): 67,
-    (4, 2): 81, (4, 3): 63, (4, 4): 88, (4, 5): 70, (5, 1): 58, (5, 2): 74, (5, 3): 70, (5, 4): 81,
-    (5, 5): 60, (6, 1): 77, (6, 2): 79, (6, 3): 71, (6, 4): 72, (6, 5): 76, (7, 1): 53, (7, 2): 53,
-    (7, 3): 67, (7, 4): 62, (7, 5): 79, (8, 1): 53, (8, 2): 71, (8, 3): 62, (8, 4): 64, (8, 5): 62,
-    (9, 1): 85, (9, 2): 76, (9, 3): 90, (9, 4): 82, (9, 5): 63, (10, 1): 89, (10, 2): 74,
-    (10, 3): 83, (10, 4): 74, (10, 5): 72
-    }  # demandas de cada destino en cada día: llaves (i, d)
-R = {1: 48, 2: 57, 3: 81, 4: 33, 5: 111, 6: 102, 7: 100, 8: 29, 9: 105, 10: 106}  # el origen que está más cerca ofrece menos
-Bo = {(i, o):tpo_en_bloques1[o - 1] for o in Origenes for i in Camiones}
+    (1, 1): 53,
+    (1, 2): 54,
+    (1, 3): 78,
+    (1, 4): 52,
+    (1, 5): 59,
+    (2, 1): 81,
+    (2, 2): 76,
+    (2, 3): 63,
+    (2, 4): 80,
+    (2, 5): 56,
+    (3, 1): 54,
+    (3, 2): 70,
+    (3, 3): 53,
+    (3, 4): 57,
+    (3, 5): 77,
+    (4, 1): 67,
+    (4, 2): 81,
+    (4, 3): 63,
+    (4, 4): 88,
+    (4, 5): 70,
+    (5, 1): 58,
+    (5, 2): 74,
+    (5, 3): 70,
+    (5, 4): 81,
+    (5, 5): 60,
+    (6, 1): 77,
+    (6, 2): 79,
+    (6, 3): 71,
+    (6, 4): 72,
+    (6, 5): 76,
+    (7, 1): 53,
+    (7, 2): 53,
+    (7, 3): 67,
+    (7, 4): 62,
+    (7, 5): 79,
+    (8, 1): 53,
+    (8, 2): 71,
+    (8, 3): 62,
+    (8, 4): 64,
+    (8, 5): 62,
+    (9, 1): 85,
+    (9, 2): 76,
+    (9, 3): 90,
+    (9, 4): 82,
+    (9, 5): 63,
+    (10, 1): 89,
+    (10, 2): 74,
+    (10, 3): 83,
+    (10, 4): 74,
+    (10, 5): 72,
+}  # demandas de cada destino en cada día: llaves (i, d)
+
+R = {
+    1: 48,
+    2: 57,
+    3: 81,
+    4: 33,
+    5: 111,
+    6: 102,
+    7: 100,
+    8: 29,
+    9: 105,
+    10: 106,
+}  # el origen que está más cerca ofrece menos
+
+Bo = {(i, o): tpo_en_bloques1[o - 1] for o in Origenes for i in Camiones}
 Bd = {(i, d): tpo_en_bloques2[d - 1] for d in Destinos for i in Camiones}
 print("Parametros construidos")
 
@@ -54,15 +143,16 @@ model.update()
 print("Variables de decisión instanciadas")
 
 model.addConstrs(
-        (
-            bigM * (1 - Y[i, b, t, o]) + A[i] >= Do[o - 1]  # ojo porque la posicion de la lista va desde el 0
-            for i in Camiones
-            for t in Dias
-            for b in Bloques
-            for o in Origenes
-        ),
-        name="R1a",
-    )
+    (
+        bigM * (1 - Y[i, b, t, o]) + A[i]
+        >= Do[o - 1]  # ojo porque la posicion de la lista va desde el 0
+        for i in Camiones
+        for t in Dias
+        for b in Bloques
+        for o in Origenes
+    ),
+    name="R1a",
+)
 model.addConstrs(
     (
         bigM * (1 - Z[i, b, t, d]) + A[i] >= Dd[d - 1]
@@ -140,9 +230,8 @@ model.addConstrs(
         bigM * Y[i, b - Bo[i, o], t, o] >= W[i, b, t, o]
         for i in Camiones
         for o in Origenes
-        for b in Bloques[Bo[i, o] + 1:]
+        for b in Bloques[Bo[i, o] + 1 :]
         for t in Dias
-
     ),
     name="R3c",
 )
@@ -192,9 +281,7 @@ model.addConstrs(
 print("R5 agregada")
 
 
-r6_sum1 = lambda i, b, t: quicksum(
-    Z[i, b, t, d] for d in Destinos  # for j in Pedidos
-)
+r6_sum1 = lambda i, b, t: quicksum(Z[i, b, t, d] for d in Destinos)  # for j in Pedidos
 r6_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] for o in Origenes)
 model.addConstrs(
     (
@@ -209,15 +296,15 @@ print("R6 agregada")
 
 
 model.addConstrs(
-        (
-            X[i, b, t, d] <= Q[i]
-            for i in Camiones
-            for b in Bloques
-            for t in Dias
-            for d in Destinos
-        ),
-        name="R7a",
-    )
+    (
+        X[i, b, t, d] <= Q[i]
+        for i in Camiones
+        for b in Bloques
+        for t in Dias
+        for d in Destinos
+    ),
+    name="R7a",
+)
 model.addConstrs(
     (
         W[i, b, t, o] <= Q[i]
@@ -236,8 +323,7 @@ r8_sum1 = lambda i, b, t: quicksum(
 )
 r8_sum2 = lambda i, b, t: quicksum(Y[i, b, t, o] * Do[o - 1] for o in Origenes)
 r8_sum3 = lambda t, b: quicksum(
-    beta[i] * Cc[i]
-    + 2 * (Ckm[i] + E[i] * Ce) * (r8_sum1(i, b, t) + r8_sum2(i, b, t))
+    beta[i] * Cc[i] + 2 * (Ckm[i] + E[i] * Ce) * (r8_sum1(i, b, t) + r8_sum2(i, b, t))
     for i in Camiones
 )
 model.addConstr(
@@ -265,15 +351,15 @@ print("R10 agregada")
 
 
 model.addConstrs(
-        (
-            (1 - Z[i, b, t, d]) >= alpha[i, b, t]
-            for i in Camiones
-            for b in Bloques
-            for t in Dias
-            for d in Destinos
-        ),
-        name="R11a",
-    )
+    (
+        (1 - Z[i, b, t, d]) >= alpha[i, b, t]
+        for i in Camiones
+        for b in Bloques
+        for t in Dias
+        for d in Destinos
+    ),
+    name="R11a",
+)
 
 model.addConstrs(
     (
@@ -287,30 +373,26 @@ model.addConstrs(
 )
 
 
-sumc = lambda i, b, t: quicksum(
-    alpha[i, b1, t] for b1 in Bloques[b : b + 2 * Bd[i, d]]
-)
+sumc = lambda i, b, t: quicksum(alpha[i, b1, t] for b1 in Bloques[b : b + 2 * Bd[i, d]])
 model.addConstrs(
     (
         2 * Bd[i, d] * Z[i, b, t, d] <= sumc(i, b, t)
         for i in Camiones
         for t in Dias
         for d in Destinos
-        for b in range(1,(48-2*Bd[i,d]))
+        for b in range(1, (48 - 2 * Bd[i, d]))
     ),
     name="R11c",
 )
 
-sumd = lambda i, b, t: quicksum(
-    alpha[i, b1, t] for b1 in Bloques[b: b + 2 * Bd[i, d]]
-)
+sumd = lambda i, b, t: quicksum(alpha[i, b1, t] for b1 in Bloques[b : b + 2 * Bd[i, d]])
 model.addConstrs(
     (
         2 * Bo[i, o] * Z[i, b, t, o] <= sumd(i, b, t)
         for i in Camiones
         for t in Dias
         for d in Destinos
-        for b in range(1,(48-2*Bo[i,o]))
+        for b in range(1, (48 - 2 * Bo[i, o]))
     ),
     name="R11d",
 )
@@ -319,8 +401,7 @@ print("R11 agregada")
 
 model.addConstrs(
     (
-        quicksum(alpha[i, b, t] for b in Bloques for t in Dias)
-        <= bigM * beta[i]
+        quicksum(alpha[i, b, t] for b in Bloques for t in Dias) <= bigM * beta[i]
         for i in Camiones
     ),
     name="R12",
@@ -331,7 +412,7 @@ print("R12 agregada")
 model.addConstrs(
     (
         M[b, t, o]
-        == R[o] + M[b - 1, t , o] - quicksum(W[i, b - 1, t, o] for i in Camiones)
+        == R[o] + M[b - 1, t, o] - quicksum(W[i, b - 1, t, o] for i in Camiones)
         for b in Bloques[1:]  # b ∈{2,…,48}
         for o in Origenes
         for t in Dias
@@ -352,7 +433,6 @@ model.addConstrs(
     ),
     name="R14a",
 )
-
 
 model.addConstrs(
     (
@@ -386,27 +466,6 @@ model.addConstrs(
     ),
     name="R14d",
 )
-
-model.addConstrs(
-    (
-        bigM * alpha[i, b, t] >= W[i, b, t, o] 
-        for i in Camiones 
-        for t in Dias 
-        for b in Bloques 
-        for o in Origenes),
-    name="Rj1"
-    )
-
-model.addConstrs(
-    (
-        bigM * alpha[i, b, t] >= X[i, b, t, d]
-        for i in Camiones 
-        for t in Dias 
-        for b in Bloques 
-        for d in Destinos
-        ),
-    name="Rj2"
-    )
 
 """model.addConstrs(
     (
@@ -442,11 +501,39 @@ model.addConstrs((M[1, 1, o] == R[o] for o in Origenes), name="R15")
 print("R15 agregada")
 
 
+# R16 ????
+
+
 model.addConstrs(
     (alpha[i, 1, t] == 0 for i in Camiones for t in Dias),
     name="R17a",
 )
 print("R17 agregada")
+
+
+model.addConstrs(
+    (
+        bigM * alpha[i, b, t] >= W[i, b, t, o]
+        for i in Camiones
+        for t in Dias
+        for b in Bloques
+        for o in Origenes
+    ),
+    name="Rj1",
+)
+
+model.addConstrs(
+    (
+        bigM * alpha[i, b, t] >= X[i, b, t, d]
+        for i in Camiones
+        for t in Dias
+        for b in Bloques
+        for d in Destinos
+    ),
+    name="Rj2",
+)
+
+print("Rj agregada")
 
 
 # ------------ Función objetivo ------------
@@ -471,7 +558,7 @@ for i in range(model.SolCount):
     model.Params.SolutionNumber = i
     model.write(f"{i}.sol")
 
-print("\n"+"-"*10+" Manejo Soluciones "+"-"*10)
+print("\n" + "-" * 10 + " Manejo Soluciones " + "-" * 10)
 print(f"El valor objetivo es de: {model.ObjVal}")
 for camion in Camiones:
     if beta[camion].x != 0:
