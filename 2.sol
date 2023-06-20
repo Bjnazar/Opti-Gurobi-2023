@@ -160096,3 +160096,5 @@ beta_i[13] 0
 beta_i[14] 0
 beta_i[15] 0
 beta_i[16] 0
+
+Slack de R8: 2259400000.0
