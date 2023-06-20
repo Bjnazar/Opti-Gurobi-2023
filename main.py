@@ -424,12 +424,12 @@ print("R13 agregada")
 
 model.addConstrs(
     (
-        bigM * Y[i, b - Bo[i, o], t, o] >= W[i, b, t, o]
+        0 * bigM * Y[i, b - Bo[i, o], t, o] >= W[i, b, t, o]
         for i in Camiones
         for o in Origenes
         for t in Dias
         for b in range(Bo[i, o] + 1, 48)
-        # Propuesta: for b in Bloques[Bo[i, o] + 1, 48]
+
     ),
     name="R14a",
 )
@@ -447,7 +447,7 @@ model.addConstrs(
 
 model.addConstrs(
     (
-        bigM * Z[i, b - Bd[i, d], t, d] >= X[i, b, t, d]
+        0 * bigM * Z[i, b - Bd[i, d], t, d] >= X[i, b, t, d]
         for i in Camiones
         for d in Destinos
         for t in Dias
@@ -467,7 +467,7 @@ model.addConstrs(
     name="R14d",
 )
 
-"""model.addConstrs(
+model.addConstrs(
     (
         W[i, b2, t, o] <= bigM * (1 - Y[i, b1, t, o])
         for i in Camiones
@@ -491,7 +491,7 @@ model.addConstrs(
 
     ),
     name="R14f"
-)"""
+)
 
 
 print("R14 agregada")
@@ -503,9 +503,9 @@ print("R15 agregada")
 
 model.addConstrs(
     (alpha[i, 1, t] == 0 for i in Camiones for t in Dias),
-    name="R17a",
+    name="R16",
 )
-print("R17 agregada")
+print("R16 agregada")
 
 
 model.addConstrs(
@@ -516,7 +516,7 @@ model.addConstrs(
         for b in Bloques
         for o in Origenes
     ),
-    name="R18a",
+    name="R17a",
 )
 
 model.addConstrs(
@@ -527,13 +527,26 @@ model.addConstrs(
         for b in Bloques
         for d in Destinos
     ),
-    name="R18b",
+    name="R17b",
+)
+
+print("R17 agregada")
+
+
+model.addConstrs(
+    (
+        Md[d, t] == quicksum(X[i, b, t, d] for b in Bloques[2:48] for i in Camiones)
+            for t in Dias
+            for d in Destinos
+    ),
+    name="R18",
 )
 
 print("R18 agregada")
 
 
 # ------------ Función objetivo ------------
+
 fo_sum1 = lambda t, b, i: quicksum(
     Z[i, b, t, d] * Dd[d - 1] for d in Destinos  # for j in Pedidos
 )
@@ -555,7 +568,8 @@ for i in range(model.SolCount):
     model.Params.SolutionNumber = i
     model.write(f"{i}.sol")
     c0 = model.getConstrByName("R8")
-    model.write(c0.getAttr("slack"))
+    print(i, c0)
+    print(f'La holgura presupuestaria de la solución {i} es {c0.getAttr("slack")}')
 
 print("\n" + "-" * 10 + " Manejo Soluciones " + "-" * 10)
 print(f"El valor objetivo es de: {model.ObjVal}")
