@@ -501,9 +501,6 @@ model.addConstrs((M[1, 1, o] == R[o] for o in Origenes), name="R15")
 print("R15 agregada")
 
 
-# R16 ????
-
-
 model.addConstrs(
     (alpha[i, 1, t] == 0 for i in Camiones for t in Dias),
     name="R17a",
@@ -519,7 +516,7 @@ model.addConstrs(
         for b in Bloques
         for o in Origenes
     ),
-    name="Rj1",
+    name="R18a",
 )
 
 model.addConstrs(
@@ -530,10 +527,10 @@ model.addConstrs(
         for b in Bloques
         for d in Destinos
     ),
-    name="Rj2",
+    name="R18b",
 )
 
-print("Rj agregada")
+print("R18 agregada")
 
 
 # ------------ Función objetivo ------------
@@ -557,6 +554,8 @@ model.optimize()
 for i in range(model.SolCount):
     model.Params.SolutionNumber = i
     model.write(f"{i}.sol")
+    c0 = model.getConstrByName("R8")
+    model.write(c0.getAttr("slack"))
 
 print("\n" + "-" * 10 + " Manejo Soluciones " + "-" * 10)
 print(f"El valor objetivo es de: {model.ObjVal}")

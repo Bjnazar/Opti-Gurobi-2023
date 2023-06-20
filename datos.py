@@ -6,7 +6,7 @@ N_DIESEL = 8
 N_DESTINOS = 10
 N_ORIGENES = 10
 N_DIAS = 5
-bigM = 100**9
+bigM = 10**5
 
 distancias1 = [28, 366, 644, 101, 392, 306, 356, 171, 360, 363]  # origen
 distancias2 = [546, 205, 41, 559, 304, 244, 35, 80, 59, 197]  # destino
@@ -41,7 +41,7 @@ Bo = {(i, o):bloques_origenes[o - 1] for o in Origenes for i in Camiones}
 Bd = {(i, d): bloques_destinos[d - 1] for d in Destinos for i in Camiones}
 tmaxd = 10
 Cq = 20000
-Qmax = 10000
+Qmax = 500
 Ce = 5000
 G = 47600000000  #Ajustar números
 
