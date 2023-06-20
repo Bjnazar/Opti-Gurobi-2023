@@ -555,7 +555,14 @@ for i in range(model.SolCount):
     model.Params.SolutionNumber = i
     model.write(f"{i}.sol")
     c0 = model.getConstrByName("R8")
-    model.write(c0.getAttr("slack"))
+    # imprimiendo en la terminal el valor del slack
+    # print(f"\nSlack de la restricción R8: {c0.getAttr('slack')}\n")
+    # escribiendo el slack en un archivo aparte
+    # with open(f"{i}_slack.txt", "w") as f:
+    #     f.write(str(c0.getAttr("slack")))
+    # escribiendo el slack al final del archivo de solución
+    with open(f"{i}.sol", "a") as f:
+        f.write(f"\nSlack de R8: {c0.getAttr('slack')}\n")    
 
 print("\n" + "-" * 10 + " Manejo Soluciones " + "-" * 10)
 print(f"El valor objetivo es de: {model.ObjVal}")
