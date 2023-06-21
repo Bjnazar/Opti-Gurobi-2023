@@ -225,16 +225,16 @@ model.addConstrs(
     ),
     name="R3b",
 )
-model.addConstrs(
-    (
-        bigM * Y[i, b - Bo[i, o], t, o] >= W[i, b, t, o]
-        for i in Camiones
-        for o in Origenes
-        for b in Bloques[Bo[i, o] + 1 :]
-        for t in Dias
-    ),
-    name="R3c",
-)
+# model.addConstrs(
+#     (
+#         bigM * Y[i, b - Bo[i, o], t, o] >= W[i, b, t, o]
+#         for i in Camiones
+#         for o in Origenes
+#         for b in Bloques[Bo[i, o] + 1 :]
+#         for t in Dias
+#     ),
+#     name="R3c",
+# )
 print("R3 agregada")
 
 r4a_sum1 = lambda t: quicksum(
@@ -345,7 +345,7 @@ model.addConstrs(
         for t in Dias
         for d in Destinos
     ),
-    name="R10b",
+    name="R10",
 )
 print("R10 agregada")
 
@@ -376,7 +376,7 @@ model.addConstrs(
 sumc = lambda i, b, t: quicksum(alpha[i, b1, t] for b1 in Bloques[b : b + 2 * Bd[i, d]])
 model.addConstrs(
     (
-        2 * Bd[i, d] * Z[i, b, t, d] <= sumc(i, b, t)
+        2 * Bd[i, d] * Z[i, b, t, d] <= sumc(i, b, t) + 1
         for i in Camiones
         for t in Dias
         for d in Destinos
@@ -388,7 +388,7 @@ model.addConstrs(
 sumd = lambda i, b, t: quicksum(alpha[i, b1, t] for b1 in Bloques[b : b + 2 * Bd[i, d]])
 model.addConstrs(
     (
-        2 * Bo[i, o] * Z[i, b, t, o] <= sumd(i, b, t)
+        2 * Bo[i, o] * Z[i, b, t, o] <= sumd(i, b, t) + 1
         for i in Camiones
         for t in Dias
         for d in Destinos
@@ -543,6 +543,30 @@ model.addConstrs(
 )
 
 print("R18 agregada")
+
+# model.addConstrs(
+#     (
+#         X[i, b, t, d] == 0
+#             for i in Camiones
+#             for t in Dias
+#             for d in Destinos
+#             for b in Bloques[1: Bd[i, d]]
+#     ),
+#     name="R19a",
+# )
+
+# model.addConstrs(
+#     (
+#         W[i, b, t, o] == 0
+#             for i in Camiones
+#             for t in Dias
+#             for d in Destinos
+#             for b in Bloques[1: Bd[i, o]]
+#     ),
+#     name="R19b",
+# )
+
+# print("R19 agregada")
 
 
 # ------------ Función objetivo ------------
