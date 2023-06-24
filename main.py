@@ -1,5 +1,5 @@
 from gurobipy import GRB, Model, quicksum, GurobiError
-from random import randint
+import random
 
 # Constantes
 N_ELECTRICOS = 8
@@ -46,7 +46,15 @@ tmaxd = 10
 Cq = 20000
 Qmax = 500
 Ce = 5000
-G = 300  #Ajustar números
+G = 500 * 1  # Para ajustar presupuesto
+
+random.seed(42)
+Md = dict()  # demandas de cada destino en cada día: llaves (d, t)
+for t in range(1, N_DIAS + 1): 
+    for d in Destinos:
+        Md[(d,t)] = random.randint(50,90)
+for k in Md.keys(): Md[k] = 1 * Md[k]  # Aqui se peude ajustar
+
 
 
 # Construcción de los parámetros
@@ -70,59 +78,6 @@ Do = [
 
 Dd = [546, 205, 41, 559, 304, 244, 35, 80, 59, 197]  # distancias a los destinos en km
 
-Md = {
-    (1, 1): 53,
-    (1, 2): 54,
-    (1, 3): 78,
-    (1, 4): 52,
-    (1, 5): 59,
-    (2, 1): 81,
-    (2, 2): 76,
-    (2, 3): 63,
-    (2, 4): 80,
-    (2, 5): 56,
-    (3, 1): 54,
-    (3, 2): 70,
-    (3, 3): 53,
-    (3, 4): 57,
-    (3, 5): 77,
-    (4, 1): 67,
-    (4, 2): 81,
-    (4, 3): 63,
-    (4, 4): 88,
-    (4, 5): 70,
-    (5, 1): 58,
-    (5, 2): 74,
-    (5, 3): 70,
-    (5, 4): 81,
-    (5, 5): 60,
-    (6, 1): 77,
-    (6, 2): 79,
-    (6, 3): 71,
-    (6, 4): 72,
-    (6, 5): 76,
-    (7, 1): 53,
-    (7, 2): 53,
-    (7, 3): 67,
-    (7, 4): 62,
-    (7, 5): 79,
-    (8, 1): 53,
-    (8, 2): 71,
-    (8, 3): 62,
-    (8, 4): 64,
-    (8, 5): 62,
-    (9, 1): 85,
-    (9, 2): 76,
-    (9, 3): 90,
-    (9, 4): 82,
-    (9, 5): 63,
-    (10, 1): 89,
-    (10, 2): 74,
-    (10, 3): 83,
-    (10, 4): 74,
-    (10, 5): 72,
-}  # demandas de cada destino en cada día: llaves (i, d)
-
 R = {
     1: 48,
     2: 57,
@@ -135,6 +90,8 @@ R = {
     9: 105,
     10: 106,
 }  # el origen que está más cerca ofrece menos
+
+for i in R.keys(): R[i] = 1 * R[i]  # Aqui se puede ajustar
 
 Bo = {(i, o): tpo_en_bloques1[o - 1] for o in Origenes for i in Camiones}
 Bd = {(i, d): tpo_en_bloques2[d - 1] for d in Destinos for i in Camiones}
@@ -158,6 +115,10 @@ beta = model.addVars(Camiones, vtype=GRB.BINARY, name="beta_i")
 
 model.update()
 print("Variables de decisión instanciadas")
+
+
+
+# -------- Restricciones ------------
 
 model.addConstrs(
     (
@@ -633,3 +594,13 @@ for camion in Camiones:
             tipo = "eléctrico"
         print(f"Se compra el camión {str(camion)} de tipo {tipo}")
 
+
+
+# Display de solucion
+for v in model.getVars():
+    if v.X > 0.5 and v.varName[0] in ["Y", "Z"]:
+        print(v.varName, v.X)
+
+for v in model.getVars():
+    if v.X > 0.5 and v.varName[0] in [ "W", "X", "a"]:
+        print(v.varName, v.X)
